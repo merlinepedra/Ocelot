@@ -19,6 +19,12 @@ namespace Ocelot.Infrastructure.Extensions
             return input.Split(new[] { separator }, options);
         }
 
+        internal static string[] Split(this string input, string separator, int count,
+            StringSplitOptions options = StringSplitOptions.None)
+        {
+            return input.Split(new[] { separator }, count, options);
+        }
+
         internal static bool StartsWith(this string input, char value)
         {
             return input.StartsWith(value.ToString());

@@ -11,7 +11,7 @@ namespace Ocelot.Placeholders.Middleware
     /// </summary>
     public class PlaceholderMiddleware : OcelotMiddleware
     {
-        private readonly Regex _placeholderPatternMatcher = new Regex(@"{[^{]*->[^}]*}", RegexOptions.Compiled | RegexOptions.Singleline);
+        private readonly Regex _placeholderPatternMatcher = new Regex(@"{[^}]*}", RegexOptions.Compiled | RegexOptions.Singleline);
         private readonly OcelotRequestDelegate _next;
         private readonly IPlaceholderFactory _placeholderFactory;
 
@@ -32,9 +32,8 @@ namespace Ocelot.Placeholders.Middleware
                 foreach (Match match in matches)
                 {
                     // TODO: Add values to the context... Logging now for test purposes.
-                    // _placeholderFactory.Get(match.ToString()).DoStuff();
-                    Logger.LogDebug($"Match found for placeholder {match}");
-                    
+                    _placeholderFactory.Get(match.ToString());
+                    Console.WriteLine($"Match found for placeholder {match}");
                 }
             }
             
