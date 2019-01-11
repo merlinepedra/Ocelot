@@ -9,6 +9,7 @@ using Ocelot.DownstreamUrlCreator.Middleware;
 using Ocelot.Errors.Middleware;
 using Ocelot.Headers.Middleware;
 using Ocelot.LoadBalancer.Middleware;
+using Ocelot.Placeholders.Middleware;
 using Ocelot.QueryStrings.Middleware;
 using Ocelot.RateLimit.Middleware;
 using Ocelot.Request.Middleware;
@@ -48,6 +49,11 @@ namespace Ocelot.Middleware.Pipeline
 
             // Then we get the downstream route information
             builder.UseDownstreamRouteFinderMiddleware();
+            
+            // Template matching was previously happening in DownstreamRouteFinder, I think it should happen after authentication, authorization,
+            // and security options, so that it only processes if the request is otherwise valid. Until then, putting it here to keep it consistent
+            // with previous behavior in case there is something I am not considering.
+            builder.UsePlaceholderMiddleware();
 
             // This security module, IP whitelist blacklist, extended security mechanism
             builder.UseSecurityMiddleware();
