@@ -1,5 +1,7 @@
 using Ocelot.Configuration.Creator;
 using Ocelot.Configuration.File;
+using Ocelot.Placeholders;
+using Ocelot.Placeholders.Providers;
 using Ocelot.Values;
 using Shouldly;
 using TestStack.BDDfy;
@@ -15,7 +17,10 @@ namespace Ocelot.UnitTests.Configuration
 
         public UpstreamTemplatePatternCreatorTests()
         {
-            _creator = new UpstreamTemplatePatternCreator();
+            _creator = new UpstreamTemplatePatternCreator(new PlaceholderProcessor(new IPlaceholderProvider[]
+            {
+                new DefaultPlaceholderProvider()
+            }));
         }
 
         [Fact]

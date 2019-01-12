@@ -112,7 +112,7 @@ namespace Ocelot.DependencyInjection
             Services.TryAddSingleton<IHttpRequester, HttpClientHttpRequester>();
             
             //Register placeholder factor and providers
-            Services.TryAddSingleton<IPlaceholderFactory, PlaceholderFactory>();
+            Services.TryAddSingleton<IPlaceholderProcessor, PlaceholderProcessor>();
             Services.AddSingleton<IPlaceholderProvider, DefaultPlaceholderProvider>();
 
             // see this for why we register this as singleton http://stackoverflow.com/questions/37371264/invalidoperationexception-unable-to-resolve-service-for-type-microsoft-aspnetc

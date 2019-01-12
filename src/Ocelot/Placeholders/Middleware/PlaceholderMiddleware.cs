@@ -14,21 +14,21 @@ namespace Ocelot.Placeholders.Middleware
     public class PlaceholderMiddleware : OcelotMiddleware
     {
         private readonly OcelotRequestDelegate _next;
-        private readonly IPlaceholderFactory _placeholderFactory;
+        private readonly IPlaceholderProcessor _placeholderProcessor;
 
         public PlaceholderMiddleware(OcelotRequestDelegate next,
             IOcelotLoggerFactory loggerFactory,
-            IPlaceholderFactory placeholderFactory)
+            IPlaceholderProcessor placeholderProcessor)
             :base(loggerFactory.CreateLogger<PlaceholderMiddleware>())
         {
             _next = next;
-            _placeholderFactory = placeholderFactory;
+            _placeholderProcessor = placeholderProcessor;
         }
 
         public async Task Invoke(DownstreamContext context)
         {
             context.TemplatePlaceholderNameAndValues =
-                _placeholderFactory.GetPlaceholdersForTemplate(context,
+                _placeholderProcessor.GetPlaceholdersForTemplate(context,
                     context.DownstreamReRoute.DownstreamPathTemplate.Value);
             
             try

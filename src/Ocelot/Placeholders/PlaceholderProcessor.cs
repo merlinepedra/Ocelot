@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Ocelot.DownstreamRouteFinder.UrlMatcher;
 using Ocelot.Infrastructure.Extensions;
@@ -9,16 +10,31 @@ using Ocelot.Middleware;
 
 namespace Ocelot.Placeholders
 {
-    public class PlaceholderFactory : IPlaceholderFactory
+    public class PlaceholderProcessor : IPlaceholderProcessor
     {
         private readonly Regex _placeholderPatternMatcher = new Regex(@"{[^}]*}", RegexOptions.Compiled | RegexOptions.Singleline);
         private readonly ImmutableDictionary<string, IPlaceholderProvider> _providers;
         private readonly IPlaceholderProvider _defaultProvider;
         
-        public PlaceholderFactory(IEnumerable<IPlaceholderProvider> providers)
+        public PlaceholderProcessor(IEnumerable<IPlaceholderProvider> providers)
         {
             _providers = providers.ToImmutableDictionary(k => k.PlaceholderProviderName);
             _defaultProvider = _providers["default"];
+        }
+
+        public MatchCollection Match(string template)
+        {
+            return _placeholderPatternMatcher.Matches(template);
+        }
+
+        public string ProcessTemplate(DownstreamContext context, string template)
+        {
+            var result = new StringBuilder(template, template.Length * 2);
+            foreach (var placeholder in GetPlaceholdersForTemplate(context, template))
+            {
+                result.Replace(placeholder.Name, placeholder.Value);
+            }
+            return result.ToString();
         }
 
         public List<PlaceholderNameAndValue> GetPlaceholdersForTemplate(DownstreamContext context, string template)
@@ -29,10 +45,7 @@ namespace Ocelot.Placeholders
             if (matches.Count <= 0) return placeholders;
             
             foreach (Match match in matches)
-            {
                 placeholders.Add(GetValueForMatch(context, match.Value));
-                
-            }
 
             return placeholders;
         }
