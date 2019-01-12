@@ -1,4 +1,6 @@
-﻿namespace Ocelot.Configuration.Builder
+﻿using System.Collections.Generic;
+
+namespace Ocelot.Configuration.Builder
 {
     using Values;
 
@@ -35,7 +37,7 @@
 
         public UpstreamPathTemplate Build()
         {
-            return new UpstreamPathTemplate(_template, _priority, _containsQueryString, _originalValue);
+            return new UpstreamPathTemplate(_template, _priority, _containsQueryString, _originalValue, new List<string>());
         }
     }
 }

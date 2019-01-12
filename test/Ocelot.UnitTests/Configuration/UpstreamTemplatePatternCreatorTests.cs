@@ -254,7 +254,7 @@ namespace Ocelot.UnitTests.Configuration
 
         private void ThenTheFollowingIsReturned(string expected)
         {
-            _result.Template.ShouldBe(expected);
+            _result.Pattern.ToString().ShouldBe(expected);
         }
 
         private void ThenThePriorityIs(int v)

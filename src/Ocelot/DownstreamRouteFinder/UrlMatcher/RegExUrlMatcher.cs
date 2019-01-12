@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using System.Threading;
 using Ocelot.Responses;
 using Ocelot.Values;
 
@@ -8,16 +9,12 @@ namespace Ocelot.DownstreamRouteFinder.UrlMatcher
     {
         public Response<UrlMatch> Match(string upstreamUrlPath, string upstreamQueryString, UpstreamPathTemplate pathTemplate)
         {
-            if (!pathTemplate.ContainsQueryString)
-            {
-                return pathTemplate.Pattern.IsMatch(upstreamUrlPath)
-                    ? new OkResponse<UrlMatch>(new UrlMatch(true))
-                    : new OkResponse<UrlMatch>(new UrlMatch(false));
-            }
+            var matchPath = pathTemplate.ContainsQueryString
+                ? $"{upstreamUrlPath}{upstreamQueryString}"
+                : upstreamUrlPath;
+            var match = pathTemplate.Pattern.Match(matchPath);
 
-            return pathTemplate.Pattern.IsMatch($"{upstreamUrlPath}{upstreamQueryString}") 
-                ? new OkResponse<UrlMatch>(new UrlMatch(true)) 
-                : new OkResponse<UrlMatch>(new UrlMatch(false));
+            return new OkResponse<UrlMatch>(new UrlMatch(match));
         }
     }
 }

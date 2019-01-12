@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Ocelot.Configuration;
 using Ocelot.DownstreamRouteFinder.UrlMatcher;
 using Ocelot.Errors;
@@ -30,10 +32,8 @@ namespace Ocelot.DownstreamRouteFinder.Finder
             {
                 var urlMatch = _urlMatcher.Match(upstreamUrlPath, upstreamQueryString, reRoute.UpstreamTemplatePattern);
 
-                if (urlMatch.Data.Match)
-                {
-                    downstreamRoutes.Add(GetPlaceholderNamesAndValues(upstreamUrlPath, upstreamQueryString, reRoute));
-                }
+                if (!urlMatch.Data.IsMatch) continue;
+                downstreamRoutes.Add(GetPlaceholderNamesAndValues2(urlMatch.Data.Match, reRoute));
             }
 
             if (downstreamRoutes.Any())
@@ -53,11 +53,14 @@ namespace Ocelot.DownstreamRouteFinder.Finder
                    (string.IsNullOrEmpty(reRoute.UpstreamHost) || reRoute.UpstreamHost == upstreamHost);
         }
 
-        private DownstreamRoute GetPlaceholderNamesAndValues(string path, string query, ReRoute reRoute)
+        private DownstreamRoute GetPlaceholderNamesAndValues2(Match match, ReRoute reRoute)
         {
-            var templatePlaceholderNameAndValues = _placeholderNameAndValueFinder.Find(path, query, reRoute.UpstreamTemplatePattern.OriginalValue);
-
-            return new DownstreamRoute(templatePlaceholderNameAndValues.Data, reRoute);
+            var placeholderNameAndValues = new List<PlaceholderNameAndValue>();
+            foreach (var key in reRoute.UpstreamTemplatePattern.Keys)
+            {
+                placeholderNameAndValues.Add(new PlaceholderNameAndValue($"{{{key}}}", match.Groups[key].Value));
+            }
+            return new DownstreamRoute(placeholderNameAndValues, reRoute);
         }
     }
 }

@@ -1,12 +1,17 @@
+using System.Reflection.Metadata.Ecma335;
+using System.Text.RegularExpressions;
+
 namespace Ocelot.DownstreamRouteFinder.UrlMatcher
 {
     public class UrlMatch
     {
-        public UrlMatch(bool match)
+        public UrlMatch(Match match)
         {
             Match = match; 
         }
 
-        public bool Match {get;private set;}
+        public Match Match { get; }
+        
+        public bool IsMatch => Match != null && Match.Success;
     }
 }

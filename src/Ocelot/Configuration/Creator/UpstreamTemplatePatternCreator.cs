@@ -14,7 +14,7 @@ namespace Ocelot.Configuration.Creator
         private const string RegExMatchEndString = "$";
         private const string RegExIgnoreCase = "(?i)";
         private const string RegExForwardSlashOnly = "^/$";
-        private const string RegExForwardSlashAndOnePlaceHolder = "^/.*";
+        private const string RegExForwardSlashAndOnePlaceHolder = "^/(?<key>.*)";
 
         private readonly IPlaceholderProcessor _placeholderProcessor;
 
@@ -26,19 +26,20 @@ namespace Ocelot.Configuration.Creator
         public UpstreamPathTemplate Create(IReRoute reRoute)
         {
             var originalUpstreamTemplate = reRoute.UpstreamPathTemplate;
+            var keys = new List<string>();
 
             if (originalUpstreamTemplate == "/")
             {
-                return new UpstreamPathTemplate(RegExForwardSlashOnly, reRoute.Priority, false, reRoute.UpstreamPathTemplate);
+                return new UpstreamPathTemplate(RegExForwardSlashOnly, reRoute.Priority, false, reRoute.UpstreamPathTemplate, keys);
             }
-
-            var placeholders = new List<string>();
 
             var matches = _placeholderProcessor.Match(originalUpstreamTemplate);
 
             if (originalUpstreamTemplate.Substring(0, 2) == "/{" && matches.Count == 1 && originalUpstreamTemplate.Length == matches[0].Length + 1)
             {
-                return new UpstreamPathTemplate(RegExForwardSlashAndOnePlaceHolder, 0, false, reRoute.UpstreamPathTemplate);
+                var key = matches[0].Value.Substring(1, matches[0].Length - 2);
+                keys.Add(key);
+                return new UpstreamPathTemplate(RegExForwardSlashAndOnePlaceHolder.Replace("key", key), 0, false, reRoute.UpstreamPathTemplate, keys);
             }
             
             var upstreamTemplate = new StringBuilder(originalUpstreamTemplate, originalUpstreamTemplate.Length * 2);
@@ -58,12 +59,13 @@ namespace Ocelot.Configuration.Creator
 
             foreach (Match match in matches)
             {
-                placeholders.Add(match.Value);
                 var isCatchAll = (match.Index > lastSlashBeforeQuery && match.Index < queryIndex) || (match.Index > queryIndex);
-                upstreamTemplate.Replace(match.Value,
-                    isCatchAll
-                        ? RegExMatchOneOrMoreOfEverything
-                        : RegExMatchOneOrMoreOfEverythingUntilNextForwardSlash);
+                var key = match.Value.Substring(1, match.Length - 2);
+                keys.Add(key);
+                var matcher = isCatchAll
+                    ? RegExMatchOneOrMoreOfEverything
+                    : RegExMatchOneOrMoreOfEverythingUntilNextForwardSlash;
+                upstreamTemplate.Replace(match.Value, $"(?<{key}>{matcher})");
             }
 
             if (upstreamTemplate[upstreamTemplate.Length - 1] == '/')
@@ -75,7 +77,7 @@ namespace Ocelot.Configuration.Creator
                 ? $"^{upstreamTemplate}{RegExMatchEndString}" 
                 : $"^{RegExIgnoreCase}{upstreamTemplate}{RegExMatchEndString}";
 
-            return new UpstreamPathTemplate(route, reRoute.Priority, containsQueryString, reRoute.UpstreamPathTemplate);
+            return new UpstreamPathTemplate(route, reRoute.Priority, containsQueryString, reRoute.UpstreamPathTemplate, keys);
         }
     }
 }
