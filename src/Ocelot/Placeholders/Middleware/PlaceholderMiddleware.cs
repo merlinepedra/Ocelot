@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Ocelot.DownstreamRouteFinder.UrlMatcher;
 using Ocelot.Logging;
 using Ocelot.Middleware;
 
@@ -11,7 +13,6 @@ namespace Ocelot.Placeholders.Middleware
     /// </summary>
     public class PlaceholderMiddleware : OcelotMiddleware
     {
-        private readonly Regex _placeholderPatternMatcher = new Regex(@"{[^}]*}", RegexOptions.Compiled | RegexOptions.Singleline);
         private readonly OcelotRequestDelegate _next;
         private readonly IPlaceholderFactory _placeholderFactory;
 
@@ -26,16 +27,9 @@ namespace Ocelot.Placeholders.Middleware
 
         public async Task Invoke(DownstreamContext context)
         {
-            var matches = _placeholderPatternMatcher.Matches(context.DownstreamReRoute.DownstreamPathTemplate.Value);
-            if (matches.Count > 0)
-            {
-                foreach (Match match in matches)
-                {
-                    // TODO: Add values to the context... Logging now for test purposes.
-                    _placeholderFactory.Get(match.ToString());
-                    Console.WriteLine($"Match found for placeholder {match}");
-                }
-            }
+            context.TemplatePlaceholderNameAndValues =
+                _placeholderFactory.GetPlaceholdersForTemplate(context,
+                    context.DownstreamReRoute.DownstreamPathTemplate.Value);
             
             try
             {

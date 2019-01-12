@@ -1,4 +1,5 @@
 using Ocelot.Placeholders;
+using Ocelot.Placeholders.Providers;
 
 namespace Ocelot.DependencyInjection
 {
@@ -109,7 +110,10 @@ namespace Ocelot.DependencyInjection
             Services.TryAddSingleton<IDownstreamAddressesCreator, DownstreamAddressesCreator>();
             Services.TryAddSingleton<IDelegatingHandlerHandlerFactory, DelegatingHandlerHandlerFactory>();
             Services.TryAddSingleton<IHttpRequester, HttpClientHttpRequester>();
+            
+            //Register placeholder factor and providers
             Services.TryAddSingleton<IPlaceholderFactory, PlaceholderFactory>();
+            Services.AddSingleton<IPlaceholderProvider, DefaultPlaceholderProvider>();
 
             // see this for why we register this as singleton http://stackoverflow.com/questions/37371264/invalidoperationexception-unable-to-resolve-service-for-type-microsoft-aspnetc
             // could maybe use a scoped data repository

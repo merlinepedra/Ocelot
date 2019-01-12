@@ -12,6 +12,6 @@ namespace Ocelot.Placeholders
         /// </summary>
         string PlaceholderProviderName { get; }
 
-        IEnumerable<PlaceholderNameAndValue> ProcessReplacements(DownstreamContext context);
+        IEnumerable<string> GetValues(DownstreamContext context, string value);
     }
 }

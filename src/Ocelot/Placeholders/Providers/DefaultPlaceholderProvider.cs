@@ -1,16 +1,17 @@
 using System.Collections.Generic;
-using Ocelot.DownstreamRouteFinder.UrlMatcher;
+using System.Linq;
 using Ocelot.Middleware;
 
 namespace Ocelot.Placeholders.Providers
 {
     public class DefaultPlaceholderProvider : IPlaceholderProvider
     {
-        public string PlaceholderProviderName { get; } = null;
+        // "default" is used when there are no other matches.
+        public string PlaceholderProviderName { get; } = "default";
         
-        public IEnumerable<PlaceholderNameAndValue> ProcessReplacements(DownstreamContext context)
+        public IEnumerable<string> GetValues(DownstreamContext context, string value)
         {
-            return context.TemplatePlaceholderNameAndValues;
+            return context.TemplatePlaceholderNameAndValues.Where(e => e.Name == $"{{{value}}}").Select(e => e.Value);
         }
     }
 }
