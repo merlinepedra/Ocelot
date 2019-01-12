@@ -12,12 +12,10 @@ namespace Ocelot.DownstreamRouteFinder.Finder
     public class DownstreamRouteFinder : IDownstreamRouteProvider
     {
         private readonly IUrlPathToUrlTemplateMatcher _urlMatcher;
-        private readonly IPlaceholderNameAndValueFinder _placeholderNameAndValueFinder;
 
-        public DownstreamRouteFinder(IUrlPathToUrlTemplateMatcher urlMatcher, IPlaceholderNameAndValueFinder urlPathPlaceholderNameAndValueFinder)
+        public DownstreamRouteFinder(IUrlPathToUrlTemplateMatcher urlMatcher)
         {
             _urlMatcher = urlMatcher;
-            _placeholderNameAndValueFinder = urlPathPlaceholderNameAndValueFinder;
         }
 
         public Response<DownstreamRoute> Get(string upstreamUrlPath, string upstreamQueryString, string httpMethod, IInternalConfiguration configuration, string upstreamHost)
@@ -33,7 +31,7 @@ namespace Ocelot.DownstreamRouteFinder.Finder
                 var urlMatch = _urlMatcher.Match(upstreamUrlPath, upstreamQueryString, reRoute.UpstreamTemplatePattern);
 
                 if (!urlMatch.Data.IsMatch) continue;
-                downstreamRoutes.Add(GetPlaceholderNamesAndValues2(urlMatch.Data.Match, reRoute));
+                downstreamRoutes.Add(GetPlaceholderNamesAndValues(urlMatch.Data.Match, reRoute));
             }
 
             if (downstreamRoutes.Any())
@@ -53,7 +51,7 @@ namespace Ocelot.DownstreamRouteFinder.Finder
                    (string.IsNullOrEmpty(reRoute.UpstreamHost) || reRoute.UpstreamHost == upstreamHost);
         }
 
-        private DownstreamRoute GetPlaceholderNamesAndValues2(Match match, ReRoute reRoute)
+        private DownstreamRoute GetPlaceholderNamesAndValues(Match match, ReRoute reRoute)
         {
             var placeholderNameAndValues = new List<PlaceholderNameAndValue>();
             foreach (var key in reRoute.UpstreamTemplatePattern.Keys)

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Ocelot.DownstreamRouteFinder.UrlMatcher;
 using Ocelot.Responses;
 using Ocelot.Values;
@@ -271,17 +272,17 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder.UrlMatcher
 
         private void WhenIMatchThePaths()
         {
-            _result = _urlMatcher.Match(_path, _queryString, new UpstreamPathTemplate(_downstreamPathTemplate, 0, _containsQueryString, _downstreamPathTemplate));
+            _result = _urlMatcher.Match(_path, _queryString, new UpstreamPathTemplate(_downstreamPathTemplate, 0, _containsQueryString, _downstreamPathTemplate, new List<string>()));
         }
 
         private void ThenTheResultIsTrue()
         {
-            _result.Data.Match.ShouldBeTrue();
+            _result.Data.IsMatch.ShouldBeTrue();
         }
 
         private void ThenTheResultIsFalse()
         {
-            _result.Data.Match.ShouldBeFalse();
+            _result.Data.IsMatch.ShouldBeFalse();
         }
 
         private void GivenThereIsAQueryInTemplate()

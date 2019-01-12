@@ -1,10 +1,17 @@
 using System;
+using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Validators;
+using Newtonsoft.Json.Serialization;
+using Ocelot.Configuration.Builder;
+using Ocelot.Configuration.Creator;
+using Ocelot.Configuration.File;
 using Ocelot.DownstreamRouteFinder.UrlMatcher;
+using Ocelot.Placeholders;
+using Ocelot.Placeholders.Providers;
 using Ocelot.Values;
 
 namespace Ocelot.Benchmarks
@@ -28,7 +35,13 @@ namespace Ocelot.Benchmarks
         public void SetUp()
         {
             _urlPathMatcher = new RegExUrlMatcher();
-            _pathTemplate = new UpstreamPathTemplate("api/product/products/{productId}/variants/", 0, false, null);
+            _pathTemplate = new UpstreamTemplatePatternCreator(new PlaceholderProcessor(new IPlaceholderProvider[]
+            {
+                new DefaultPlaceholderProvider()
+            })).Create(new FileReRoute()
+            {
+                UpstreamPathTemplate = "api/product/products/{productId}/variants/"
+            });
             _downstreamUrlPath = "api/product/products/1/variants/?soldout=false";
         }
 

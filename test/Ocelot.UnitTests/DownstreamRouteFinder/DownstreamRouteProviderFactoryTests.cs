@@ -24,7 +24,6 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
         public DownstreamRouteProviderFactoryTests()
         {
             var services = new ServiceCollection();
-            services.AddSingleton<IPlaceholderNameAndValueFinder, UrlPathPlaceholderNameAndValueFinder>();
             services.AddSingleton<IUrlPathToUrlTemplateMatcher, RegExUrlMatcher>();
             services.AddSingleton<IQoSOptionsCreator, QoSOptionsCreator>();
             services.AddSingleton<IDownstreamRouteProvider, DownstreamRouteFinder>();
