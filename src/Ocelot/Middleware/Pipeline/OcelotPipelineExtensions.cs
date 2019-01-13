@@ -35,6 +35,7 @@ namespace Ocelot.Middleware.Pipeline
                 app =>
                 {
                     app.UseDownstreamRouteFinderMiddleware();
+                    app.UsePlaceholderMiddleware();
                     app.UseDownstreamRequestInitialiser();
                     app.UseLoadBalancingMiddleware();
                     app.UseDownstreamUrlCreatorMiddleware();

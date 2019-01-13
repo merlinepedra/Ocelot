@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Microsoft.AspNetCore.Http;
 using Ocelot.Configuration;
 using Ocelot.DownstreamRouteFinder.UrlMatcher;
@@ -16,6 +17,8 @@ namespace Ocelot.Middleware
         }
 
         public List<PlaceholderNameAndValue> TemplatePlaceholderNameAndValues { get; set; }
+        
+        public ImmutableDictionary<string, string> UpstreamUrlValues { get; set; }
 
         public HttpContext HttpContext { get; }
 

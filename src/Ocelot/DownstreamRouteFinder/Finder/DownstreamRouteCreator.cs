@@ -78,7 +78,7 @@
                 .WithUpstreamPathTemplate(upstreamPathTemplate)
                 .Build();
 
-            downstreamRoute = new OkResponse<DownstreamRoute>(new DownstreamRoute(new List<PlaceholderNameAndValue>(), reRoute));
+            downstreamRoute = new OkResponse<DownstreamRoute>(new DownstreamRoute(new Dictionary<string, string>(), reRoute));
 
             _cache.AddOrUpdate(loadBalancerKey, downstreamRoute, (x, y) => downstreamRoute);
         

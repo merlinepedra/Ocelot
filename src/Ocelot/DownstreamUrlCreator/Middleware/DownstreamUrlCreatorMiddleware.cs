@@ -3,6 +3,7 @@ using Ocelot.DownstreamUrlCreator.UrlTemplateReplacer;
 using Ocelot.Logging;
 using Ocelot.Middleware;
 using System;
+using Ocelot.Placeholders;
 using Ocelot.Responses;
 using Ocelot.Values;
 
@@ -14,14 +15,17 @@ namespace Ocelot.DownstreamUrlCreator.Middleware
     {
         private readonly OcelotRequestDelegate _next;
         private readonly IDownstreamPathPlaceholderReplacer _replacer;
+        private readonly IPlaceholderProcessor _processor;
 
         public DownstreamUrlCreatorMiddleware(OcelotRequestDelegate next,
             IOcelotLoggerFactory loggerFactory,
-            IDownstreamPathPlaceholderReplacer replacer)
+            IDownstreamPathPlaceholderReplacer replacer,
+            IPlaceholderProcessor placeholderProcessor)
                 :base(loggerFactory.CreateLogger<DownstreamUrlCreatorMiddleware>())
         {
             _next = next;
             _replacer = replacer;
+            _processor = placeholderProcessor;
         }
 
         public async Task Invoke(DownstreamContext context)
@@ -115,9 +119,9 @@ namespace Ocelot.DownstreamUrlCreator.Middleware
 
         private (string path, string query) CreateServiceFabricUri(DownstreamContext context, Response<DownstreamPath> dsPath)
         {
-            var query = context.DownstreamRequest.Query;           
-            var serviceName = _replacer.Replace(context.DownstreamReRoute.ServiceName, context.TemplatePlaceholderNameAndValues);
-            var pathTemplate = $"/{serviceName.Data.Value}{dsPath.Data.Value}";
+            var query = context.DownstreamRequest.Query;
+            var serviceName = _processor.ProcessTemplate(context, context.DownstreamReRoute.ServiceName);
+            var pathTemplate = $"/{serviceName}{dsPath.Data.Value}";
             return (pathTemplate, query);
         }
 

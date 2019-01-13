@@ -44,7 +44,7 @@ namespace Ocelot.UnitTests.QueryStrings
         [Fact]
         public void should_call_add_queries_correctly()
         {
-            var downstreamRoute = new DownstreamRoute(new List<PlaceholderNameAndValue>(),
+            var downstreamRoute = new DownstreamRoute(new Dictionary<string, string>(),
                 new ReRouteBuilder()
                     .WithDownstreamReRoute(new DownstreamReRouteBuilder()
                         .WithDownstreamPathTemplate("any old string")
@@ -90,7 +90,7 @@ namespace Ocelot.UnitTests.QueryStrings
 
         private void GivenTheDownStreamRouteIs(DownstreamRoute downstreamRoute)
         {
-            _downstreamContext.TemplatePlaceholderNameAndValues = downstreamRoute.TemplatePlaceholderNameAndValues;
+            _downstreamContext.UpstreamUrlValues = downstreamRoute.UrlValues;
             _downstreamContext.DownstreamReRoute = downstreamRoute.ReRoute.DownstreamReRoute[0];
         }
     }

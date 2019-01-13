@@ -53,10 +53,10 @@ namespace Ocelot.DownstreamRouteFinder.Finder
 
         private DownstreamRoute GetPlaceholderNamesAndValues(Match match, ReRoute reRoute)
         {
-            var placeholderNameAndValues = new List<PlaceholderNameAndValue>();
+            var placeholderNameAndValues = new Dictionary<string, string>();
             foreach (var key in reRoute.UpstreamTemplatePattern.Keys)
             {
-                placeholderNameAndValues.Add(new PlaceholderNameAndValue($"{{{key}}}", match.Groups[key].Value));
+                placeholderNameAndValues.Add(key, match.Groups[key].Value);
             }
             return new DownstreamRoute(placeholderNameAndValues, reRoute);
         }

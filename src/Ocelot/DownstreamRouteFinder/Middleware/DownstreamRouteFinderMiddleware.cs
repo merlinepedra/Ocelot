@@ -52,7 +52,7 @@ namespace Ocelot.DownstreamRouteFinder.Middleware
             
             Logger.LogDebug($"downstream templates are {downstreamPathTemplates}");
 
-            context.TemplatePlaceholderNameAndValues = downstreamRoute.Data.TemplatePlaceholderNameAndValues;
+            context.UpstreamUrlValues = downstreamRoute.Data.UrlValues;
 
             await _multiplexer.Multiplex(context, downstreamRoute.Data.ReRoute, _next);
         }

@@ -44,7 +44,7 @@ namespace Ocelot.UnitTests.Headers
         [Fact]
         public void should_call_add_headers_to_request_correctly()
         {
-            var downstreamRoute = new DownstreamRoute(new List<PlaceholderNameAndValue>(),
+            var downstreamRoute = new DownstreamRoute(new Dictionary<string, string>(),
                 new ReRouteBuilder()
                     .WithDownstreamReRoute(new DownstreamReRouteBuilder()
                             .WithDownstreamPathTemplate("any old string")
@@ -72,7 +72,7 @@ namespace Ocelot.UnitTests.Headers
         private void GivenTheDownStreamRouteIs(DownstreamRoute downstreamRoute)
         {
             _downstreamRoute = new OkResponse<DownstreamRoute>(downstreamRoute);
-            _downstreamContext.TemplatePlaceholderNameAndValues = downstreamRoute.TemplatePlaceholderNameAndValues;
+            _downstreamContext.UpstreamUrlValues = downstreamRoute.UrlValues;
             _downstreamContext.DownstreamReRoute = downstreamRoute.ReRoute.DownstreamReRoute[0];
         }
 

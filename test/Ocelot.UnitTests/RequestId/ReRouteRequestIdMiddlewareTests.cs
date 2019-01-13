@@ -52,7 +52,7 @@
         [Fact]
         public void should_pass_down_request_id_from_upstream_request()
         {
-            var downstreamRoute = new DownstreamRoute(new List<PlaceholderNameAndValue>(),
+            var downstreamRoute = new DownstreamRoute(new Dictionary<string, string>(),
                 new ReRouteBuilder()
                     .WithDownstreamReRoute(new DownstreamReRouteBuilder()
                         .WithDownstreamPathTemplate("any old string")
@@ -75,7 +75,7 @@
         [Fact]
         public void should_add_request_id_when_not_on_upstream_request()
         {
-            var downstreamRoute = new DownstreamRoute(new List<PlaceholderNameAndValue>(),
+            var downstreamRoute = new DownstreamRoute(new Dictionary<string, string>(),
                 new ReRouteBuilder()
                     .WithDownstreamReRoute(new DownstreamReRouteBuilder()
                         .WithDownstreamPathTemplate("any old string")
@@ -95,7 +95,7 @@
         [Fact]
         public void should_add_request_id_scoped_repo_for_logging_later()
         {
-            var downstreamRoute = new DownstreamRoute(new List<PlaceholderNameAndValue>(),
+            var downstreamRoute = new DownstreamRoute(new Dictionary<string, string>(),
                 new ReRouteBuilder()
                     .WithDownstreamReRoute(new DownstreamReRouteBuilder()
                         .WithDownstreamPathTemplate("any old string")
@@ -119,7 +119,7 @@
         [Fact]
         public void should_update_request_id_scoped_repo_for_logging_later()
         {
-            var downstreamRoute = new DownstreamRoute(new List<PlaceholderNameAndValue>(),
+            var downstreamRoute = new DownstreamRoute(new Dictionary<string, string>(),
                 new ReRouteBuilder()
                     .WithDownstreamReRoute(new DownstreamReRouteBuilder()
                         .WithDownstreamPathTemplate("any old string")
@@ -143,7 +143,7 @@
         [Fact]
         public void should_not_update_if_global_request_id_is_same_as_re_route_request_id()
         {
-            var downstreamRoute = new DownstreamRoute(new List<PlaceholderNameAndValue>(),
+            var downstreamRoute = new DownstreamRoute(new Dictionary<string, string>(),
                 new ReRouteBuilder()
                     .WithDownstreamReRoute(new DownstreamReRouteBuilder()
                         .WithDownstreamPathTemplate("any old string")
@@ -196,7 +196,7 @@
 
         private void GivenTheDownStreamRouteIs(DownstreamRoute downstreamRoute)
         {
-            _downstreamContext.TemplatePlaceholderNameAndValues = downstreamRoute.TemplatePlaceholderNameAndValues;
+            _downstreamContext.UpstreamUrlValues = downstreamRoute.UrlValues;
             _downstreamContext.DownstreamReRoute = downstreamRoute.ReRoute.DownstreamReRoute[0];
         }
 

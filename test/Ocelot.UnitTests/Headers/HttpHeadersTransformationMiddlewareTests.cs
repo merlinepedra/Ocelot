@@ -98,7 +98,7 @@ namespace Ocelot.UnitTests.Headers
 
             var dR = new DownstreamRoute(null, reRoute);
 
-            _downstreamContext.TemplatePlaceholderNameAndValues = dR.TemplatePlaceholderNameAndValues;
+            _downstreamContext.UpstreamUrlValues = dR.UrlValues;
             _downstreamContext.DownstreamReRoute = dR.ReRoute.DownstreamReRoute[0];
         }
 

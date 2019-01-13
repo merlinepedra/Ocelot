@@ -64,7 +64,7 @@ namespace Ocelot.UnitTests.RateLimit
                 .WithUpstreamHttpMethod(new List<string> {"Get"})
                 .Build();
 
-            var downstreamRoute = new DownstreamRoute(new List<Ocelot.DownstreamRouteFinder.UrlMatcher.PlaceholderNameAndValue>(), reRoute);
+            var downstreamRoute = new DownstreamRoute(new Dictionary<string, string>(), reRoute);
 
             this.Given(x => x.GivenTheDownStreamRouteIs(downstreamRoute))
                 .When(x => x.WhenICallTheMiddlewareMultipleTime(2))
@@ -77,7 +77,7 @@ namespace Ocelot.UnitTests.RateLimit
         [Fact]
         public void should_call_middleware_withWhitelistClient()
         {
-            var downstreamRoute = new DownstreamRoute(new List<Ocelot.DownstreamRouteFinder.UrlMatcher.PlaceholderNameAndValue>(),
+            var downstreamRoute = new DownstreamRoute(new Dictionary<string, string>(),
                  new ReRouteBuilder()
                      .WithDownstreamReRoute(new DownstreamReRouteBuilder()
                          .WithEnableRateLimiting(true)
@@ -96,7 +96,7 @@ namespace Ocelot.UnitTests.RateLimit
 
         private void GivenTheDownStreamRouteIs(DownstreamRoute downstreamRoute)
         {
-            _downstreamContext.TemplatePlaceholderNameAndValues = downstreamRoute.TemplatePlaceholderNameAndValues;
+            _downstreamContext.UpstreamUrlValues = downstreamRoute.UrlValues;
             _downstreamContext.DownstreamReRoute = downstreamRoute.ReRoute.DownstreamReRoute[0];
         }
 

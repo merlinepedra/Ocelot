@@ -117,9 +117,9 @@
                 .WithUpstreamHttpMethod(new List<string> { "Get" })
                 .Build();
                 
-            var downstreamRoute = new DownstreamRoute(new List<PlaceholderNameAndValue>(), reRoute);
+            var downstreamRoute = new DownstreamRoute(new Dictionary<string, string>(), reRoute);
 
-            _downstreamContext.TemplatePlaceholderNameAndValues = downstreamRoute.TemplatePlaceholderNameAndValues;
+            _downstreamContext.UpstreamUrlValues = downstreamRoute.UrlValues;
             _downstreamContext.DownstreamReRoute = downstreamRoute.ReRoute.DownstreamReRoute[0];
         }
 

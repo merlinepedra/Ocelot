@@ -1,4 +1,7 @@
-﻿namespace Ocelot.UnitTests.DownstreamUrlCreator
+﻿using Ocelot.Placeholders;
+using Ocelot.Placeholders.Providers;
+
+namespace Ocelot.UnitTests.DownstreamUrlCreator
 {
     using System;
     using System.Collections.Generic;
@@ -58,7 +61,7 @@
 
             this.Given(x => x.GivenTheDownStreamRouteIs(
                     new DownstreamRoute(
-                    new List<PlaceholderNameAndValue>(), 
+                    new Dictionary<string, string>(), 
                     new ReRouteBuilder()
                         .WithDownstreamReRoute(downstreamReRoute)
                         .WithUpstreamHttpMethod(new List<string> { "Get" })
@@ -86,10 +89,10 @@
 
             this.Given(x => x.GivenTheDownStreamRouteIs(
                     new DownstreamRoute(
-                        new List<PlaceholderNameAndValue>
+                        new Dictionary<string, string>
                         {
-                            new PlaceholderNameAndValue("{subscriptionId}", "1"),
-                            new PlaceholderNameAndValue("{unitId}", "2")
+                            {"subscriptionId", "1"},
+                            {"unitId", "2"}
                         },
                         new ReRouteBuilder()
                             .WithDownstreamReRoute(downstreamReRoute)
@@ -118,10 +121,10 @@
 
             this.Given(x => x.GivenTheDownStreamRouteIs(
                     new DownstreamRoute(
-                        new List<PlaceholderNameAndValue>
+                        new Dictionary<string, string>
                         {
-                            new PlaceholderNameAndValue("{subscriptionId}", "1"),
-                            new PlaceholderNameAndValue("{unitId}", "2")
+                            {"subscriptionId", "1"},
+                            {"unitId", "2"}
                         },
                         new ReRouteBuilder()
                             .WithDownstreamReRoute(downstreamReRoute)
@@ -150,11 +153,11 @@
 
             this.Given(x => x.GivenTheDownStreamRouteIs(
                     new DownstreamRoute(
-                        new List<PlaceholderNameAndValue>
+                        new Dictionary<string, string>
                         {
-                            new PlaceholderNameAndValue("{subscriptionId}", "1"),
-                            new PlaceholderNameAndValue("{unitId}", "2"),
-                            new PlaceholderNameAndValue("{unitIdIty}", "3")
+                            {"subscriptionId", "1"},
+                            {"unitId", "2"},
+                            {"unitIdIty", "3"}
                         },
                         new ReRouteBuilder()
                             .WithDownstreamReRoute(downstreamReRoute)
@@ -186,7 +189,7 @@
 
             this.Given(x => x.GivenTheDownStreamRouteIs(
                     new DownstreamRoute(
-                        new List<PlaceholderNameAndValue>(),
+                        new Dictionary<string, string>(),
                         new ReRouteBuilder()
                             .WithDownstreamReRoute(downstreamReRoute)
                             .WithUpstreamHttpMethod(new List<string> { "Get" })
@@ -209,7 +212,7 @@
                 .Build();
 
             var downstreamRoute = new DownstreamRoute(
-                new List<PlaceholderNameAndValue>(),
+                new Dictionary<string, string>(),
                 new ReRouteBuilder()
                     .WithDownstreamReRoute(downstreamReRoute)
                     .Build());
@@ -239,7 +242,7 @@
                 .Build();
 
             var downstreamRoute = new DownstreamRoute(
-                new List<PlaceholderNameAndValue>(),
+                new Dictionary<string, string>(),
                 new ReRouteBuilder()
                     .WithDownstreamReRoute(downstreamReRoute)
                     .Build());
@@ -269,7 +272,7 @@
                 .Build();
 
             var downstreamRoute = new DownstreamRoute(
-                new List<PlaceholderNameAndValue>(),
+                new Dictionary<string, string>(),
                 new ReRouteBuilder()
                     .WithDownstreamReRoute(downstreamReRoute)
                     .Build());
@@ -293,7 +296,7 @@
         public void should_create_service_fabric_url_with_version_from_upstream_path_template()
         {
             var downstreamRoute = new DownstreamRoute(
-                new List<PlaceholderNameAndValue>(),
+                new Dictionary<string, string>(),
                 new ReRouteBuilder().WithDownstreamReRoute(
                         new DownstreamReRouteBuilder()
                             .WithDownstreamScheme("http")
@@ -332,10 +335,10 @@
 
             this.Given(x => x.GivenTheDownStreamRouteIs(
                     new DownstreamRoute(
-                        new List<PlaceholderNameAndValue>
+                        new Dictionary<string, string>
                         {
-                            new PlaceholderNameAndValue("{action}", "1"),
-                            new PlaceholderNameAndValue("{server}", "2")
+                            {"action", "1"},
+                            {"server", "2"}
                         },
                         new ReRouteBuilder()
                             .WithDownstreamReRoute(downstreamReRoute)
@@ -360,13 +363,15 @@
 
         private void WhenICallTheMiddleware()
         {
-            _middleware = new DownstreamUrlCreatorMiddleware(_next, _loggerFactory.Object, _downstreamUrlTemplateVariableReplacer.Object);
+            _middleware = new DownstreamUrlCreatorMiddleware(_next, _loggerFactory.Object,
+                _downstreamUrlTemplateVariableReplacer.Object,
+                new PlaceholderProcessor(new List<IPlaceholderProvider>{new DefaultPlaceholderProvider()}));
             _middleware.Invoke(_downstreamContext).GetAwaiter().GetResult();
         }
 
         private void GivenTheDownStreamRouteIs(DownstreamRoute downstreamRoute)
         {
-            _downstreamContext.TemplatePlaceholderNameAndValues = downstreamRoute.TemplatePlaceholderNameAndValues;
+            _downstreamContext.UpstreamUrlValues = downstreamRoute.UrlValues;
             _downstreamContext.DownstreamReRoute = downstreamRoute.ReRoute.DownstreamReRoute[0];
         }
 

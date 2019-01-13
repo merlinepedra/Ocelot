@@ -58,7 +58,7 @@
 
             this.Given(x => x.GivenTheDownStreamRouteFinderReturns(
                 new DownstreamRoute(
-                    new List<PlaceholderNameAndValue>(), 
+                    new Dictionary<string, string>(), 
                     new ReRouteBuilder()
                         .WithDownstreamReRoute(downstreamReRoute)
                         .WithUpstreamHttpMethod(new List<string> { "Get" })
@@ -90,7 +90,7 @@
 
         private void ThenTheScopedDataRepositoryIsCalledCorrectly()
         {
-            _downstreamContext.TemplatePlaceholderNameAndValues.ShouldBe(_downstreamRoute.Data.TemplatePlaceholderNameAndValues);
+            _downstreamContext.UpstreamUrlValues.ShouldBe(_downstreamRoute.Data.UrlValues);
             _downstreamContext.Configuration.ServiceProviderConfiguration.ShouldBe(_config.ServiceProviderConfiguration);
         }
     }

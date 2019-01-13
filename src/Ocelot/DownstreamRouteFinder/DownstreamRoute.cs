@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using Ocelot.Configuration;
 using Ocelot.DownstreamRouteFinder.UrlMatcher;
 
@@ -6,13 +7,13 @@ namespace Ocelot.DownstreamRouteFinder
 {
     public class DownstreamRoute
     {
-        public DownstreamRoute(List<PlaceholderNameAndValue> templatePlaceholderNameAndValues, ReRoute reRoute)
+        public DownstreamRoute(Dictionary<string, string> upstreamValues, ReRoute reRoute)
         {
-            TemplatePlaceholderNameAndValues = templatePlaceholderNameAndValues;
+            UrlValues = upstreamValues.ToImmutableDictionary();
             ReRoute = reRoute;
         }
 
-        public List<PlaceholderNameAndValue> TemplatePlaceholderNameAndValues { get; private set; }
-        public ReRoute ReRoute { get; private set; }
+        public ImmutableDictionary<string, string> UrlValues{ get; }
+        public ReRoute ReRoute { get; }
     }
 }
