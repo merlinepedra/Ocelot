@@ -18,29 +18,23 @@
 
         public Response<DownstreamRoute> Get(string upstreamUrlPath, string upstreamQueryString, string httpMethod, IInternalConfiguration configuration, string upstreamHost)
         {
-            var downstreamRoutes = new List<DownstreamRoute>();
-
-            var applicableReRoutes = configuration.ReRoutes
+            var downstreamRoute = configuration.ReRoutes
                 .Where(r => RouteIsApplicableToThisRequest(r, httpMethod, upstreamHost))
-                .OrderByDescending(x => x.UpstreamTemplatePattern.Priority);
+                .OrderByDescending(r =>
+                    r.UpstreamTemplatePattern.Priority) // Make sure we select highest priority first
+                .ThenByDescending(r => r.UpstreamHost) // Select not null hosts before null
+                .Select(r => new
+                {
+                    Match = _urlMatcher.Match(upstreamUrlPath, upstreamQueryString, r.UpstreamTemplatePattern),
+                    ReRoute = r
+                })
+                .Where(m => m.Match.Data.IsMatch)
+                .Select(m => GetDownstreamRoute(m.Match.Data.Match, m.ReRoute))
+                .FirstOrDefault();
 
-            foreach (var reRoute in applicableReRoutes)
-            {
-                var urlMatch = _urlMatcher.Match(upstreamUrlPath, upstreamQueryString, reRoute.UpstreamTemplatePattern);
-
-                if (!urlMatch.Data.IsMatch) continue;
-                downstreamRoutes.Add(GetPlaceholderNamesAndValues(urlMatch.Data.Match, reRoute));
-            }
-
-            if (downstreamRoutes.Any())
-            {
-                var notNullOption = downstreamRoutes.FirstOrDefault(x => !string.IsNullOrEmpty(x.ReRoute.UpstreamHost));
-                var nullOption = downstreamRoutes.FirstOrDefault(x => string.IsNullOrEmpty(x.ReRoute.UpstreamHost));
-
-                return notNullOption != null ? new OkResponse<DownstreamRoute>(notNullOption) : new OkResponse<DownstreamRoute>(nullOption);
-            }
-
-            return new ErrorResponse<DownstreamRoute>(new UnableToFindDownstreamRouteError(upstreamUrlPath, httpMethod));
+            return downstreamRoute != null
+                ? (Response<DownstreamRoute>) new OkResponse<DownstreamRoute>(downstreamRoute)
+                : new ErrorResponse<DownstreamRoute>(new UnableToFindDownstreamRouteError(upstreamUrlPath, httpMethod));
         }
 
         private bool RouteIsApplicableToThisRequest(ReRoute reRoute, string httpMethod, string upstreamHost)
@@ -49,7 +43,7 @@
                    (string.IsNullOrEmpty(reRoute.UpstreamHost) || reRoute.UpstreamHost == upstreamHost);
         }
 
-        private DownstreamRoute GetPlaceholderNamesAndValues(Match match, ReRoute reRoute)
+        private DownstreamRoute GetDownstreamRoute(Match match, ReRoute reRoute)
         {
             var placeholderNameAndValues = new Dictionary<string, string>();
             foreach (var key in reRoute.UpstreamTemplatePattern.Keys)

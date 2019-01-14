@@ -1,13 +1,14 @@
 namespace Ocelot.Placeholders
 {
+    using System;
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Linq;
     using System.Text;
     using System.Text.RegularExpressions;
-    using DownstreamRouteFinder.UrlMatcher;
+    using Infrastructure;
     using Infrastructure.Extensions;
-    using Ocelot.Middleware;
+    using Middleware;
     using Responses;
 
     public class PlaceholderProcessor : IPlaceholderProcessor
@@ -23,46 +24,32 @@ namespace Ocelot.Placeholders
 
         public Response<string> ProcessTemplate(DownstreamContext context, string template)
         {
-            var result = new StringBuilder(template, template.Length * 2);
-            foreach (var placeholder in GetPlaceholdersForTemplate(context, template))
+            try
             {
-                result.Replace(placeholder.Name, placeholder.Value);
+                var result = new StringBuilder(template, template.Length * 2);
+                foreach (Match match in template.MatchPlaceholders())
+                {
+                    var hasOp = match.Groups[2].Value.Length == 2;
+                    var provider = hasOp ? LocalGetProvider(match.Groups[1].Value) : _defaultProvider;
+                    result.Replace(match.Value,
+                        provider.GetValues(context, hasOp ? match.Groups[3].Value : match.Groups[1].Value)
+                            .First());
+                }
+
+                return new OkResponse<string>(result.ToString());
             }
-
-            return new OkResponse<string>(result.ToString());
-        }
-
-        public List<PlaceholderNameAndValue> GetPlaceholdersForTemplate(DownstreamContext context, string template)
-        {
-            var placeholders = new List<PlaceholderNameAndValue>();
-
-            var matches = template.MatchPlaceholders();
-            if (matches.Count <= 0) return placeholders;
-
-            foreach (Match match in matches)
+            catch (Exception e)
             {
-                placeholders.Add(GetValueForMatch(context, match.Value));
+                return new ErrorResponse<string>(new CannotAddPlaceholderError(e.Message));
             }
-
-            return placeholders;
         }
 
-        public PlaceholderNameAndValue GetValueForMatch(DownstreamContext context, string match, bool trim = true)
+        public Response<IPlaceholderProvider> GetProvider(string providerName)
         {
-            return GetValuesForMatch(context, match, trim).FirstOrDefault();
+            return new OkResponse<IPlaceholderProvider>(LocalGetProvider(providerName));
         }
 
-        public IEnumerable<PlaceholderNameAndValue> GetValuesForMatch(DownstreamContext context, string match, bool trim = true)
-        {
-            var rawMatch = trim ? match : $"{{{match}}}";
-            var trimmedMatch = trim && rawMatch?.Length > 1 ? rawMatch.Substring(1, rawMatch.Length - 2) : rawMatch;
-            var parts = trimmedMatch.Split("->", 2);
-            var provider = parts.Length == 1 ? _defaultProvider : GetProvider(parts[0]);
-            return provider.GetValues(context, trimmedMatch)
-                .Select(p => new PlaceholderNameAndValue(rawMatch, p));
-        }
-
-        public IPlaceholderProvider GetProvider(string providerName)
+        private IPlaceholderProvider LocalGetProvider(string providerName)
         {
             return _providers.TryGetValue(providerName, out var provider) ? provider : _defaultProvider;
         }
