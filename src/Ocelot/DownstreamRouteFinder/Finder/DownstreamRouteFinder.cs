@@ -1,9 +1,8 @@
 ﻿namespace Ocelot.DownstreamRouteFinder.Finder
 {
-    using System.Collections.Generic;
     using System.Linq;
-    using System.Text.RegularExpressions;
     using Configuration;
+    using Microsoft.AspNetCore.Http;
     using Responses;
     using UrlMatcher;
 
@@ -16,41 +15,18 @@
             _urlMatcher = urlMatcher;
         }
 
-        public Response<DownstreamRoute> Get(string upstreamUrlPath, string upstreamQueryString, string httpMethod, IInternalConfiguration configuration, string upstreamHost)
+        public Response<DownstreamRoute> Get(HttpRequest request, IInternalConfiguration configuration)
         {
+            // Note that we are counting on the IInternalConfiguration to have the reroutes presorted by what should be matched first
             var downstreamRoute = configuration.ReRoutes
-                .Where(r => RouteIsApplicableToThisRequest(r, httpMethod, upstreamHost))
-                .OrderByDescending(r =>
-                    r.UpstreamTemplatePattern.Priority) // Make sure we select highest priority first
-                .ThenByDescending(r => r.UpstreamHost) // Select not null hosts before null
-                .Select(r => new
-                {
-                    Match = _urlMatcher.Match(upstreamUrlPath, upstreamQueryString, r.UpstreamTemplatePattern),
-                    ReRoute = r
-                })
-                .Where(m => m.Match.Data.IsMatch)
-                .Select(m => GetDownstreamRoute(m.Match.Data.Match, m.ReRoute))
-                .FirstOrDefault();
+                .Select(r => _urlMatcher.Match(request, r))
+                .Where(m => !m.IsError) // Pattern must match URL from upstream
+                .Select(m => m.Data)
+                .FirstOrDefault(); // Since we have done proper sorting above, the first one is correct. No reason to waste CPU cycles checking all routes
 
             return downstreamRoute != null
                 ? (Response<DownstreamRoute>) new OkResponse<DownstreamRoute>(downstreamRoute)
-                : new ErrorResponse<DownstreamRoute>(new UnableToFindDownstreamRouteError(upstreamUrlPath, httpMethod));
-        }
-
-        private bool RouteIsApplicableToThisRequest(ReRoute reRoute, string httpMethod, string upstreamHost)
-        {
-            return (reRoute.UpstreamHttpMethod.Count == 0 || reRoute.UpstreamHttpMethod.Select(x => x.Method.ToLower()).Contains(httpMethod.ToLower())) &&
-                   (string.IsNullOrEmpty(reRoute.UpstreamHost) || reRoute.UpstreamHost == upstreamHost);
-        }
-
-        private DownstreamRoute GetDownstreamRoute(Match match, ReRoute reRoute)
-        {
-            var placeholderNameAndValues = new Dictionary<string, string>();
-            foreach (var key in reRoute.UpstreamTemplatePattern.Keys)
-            {
-                placeholderNameAndValues.Add(key, match.Groups[key].Value);
-            }
-            return new DownstreamRoute(placeholderNameAndValues, reRoute);
+                : new ErrorResponse<DownstreamRoute>(new UnableToFindDownstreamRouteError(request.Path, request.Method));
         }
     }
 }

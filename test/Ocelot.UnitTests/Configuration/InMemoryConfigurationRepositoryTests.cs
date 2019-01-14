@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Ocelot.Configuration;
 using Ocelot.Configuration.Builder;
 using Ocelot.Configuration.Repository;
@@ -81,7 +82,7 @@ namespace Ocelot.UnitTests.Configuration
                 AdministrationPath = administrationPath;
             }
 
-            public List<ReRoute> ReRoutes
+            public ImmutableList<ReRoute> ReRoutes
             {
                 get
                 {
@@ -96,7 +97,7 @@ namespace Ocelot.UnitTests.Configuration
                             .WithDownstreamReRoute(downstreamReRoute)
                             .WithUpstreamHttpMethod(new List<string> {"Get"})
                             .Build()
-                    };
+                    }.ToImmutableList();
                 }
             }
 

@@ -1,10 +1,10 @@
-using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Ocelot.Configuration
 {
     public interface IInternalConfiguration
     {
-        List<ReRoute> ReRoutes { get; }
+        ImmutableList<ReRoute> ReRoutes { get; }
 
         string AdministrationPath {get;}
 

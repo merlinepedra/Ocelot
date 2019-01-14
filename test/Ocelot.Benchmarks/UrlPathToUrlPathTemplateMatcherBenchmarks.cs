@@ -5,7 +5,9 @@ using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Validators;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json.Serialization;
+using Ocelot.Configuration;
 using Ocelot.Configuration.Builder;
 using Ocelot.Configuration.Creator;
 using Ocelot.Configuration.File;
@@ -20,7 +22,7 @@ namespace Ocelot.Benchmarks
     public class UrlPathToUrlPathTemplateMatcherBenchmarks : ManualConfig
     {
         private RegExUrlMatcher _urlPathMatcher;
-        private UpstreamPathTemplate _pathTemplate;
+        private ReRoute _reRoute;
         private string _downstreamUrlPath;
         private string _upstreamQuery;
 
@@ -35,17 +37,21 @@ namespace Ocelot.Benchmarks
         public void SetUp()
         {
             _urlPathMatcher = new RegExUrlMatcher();
-            _pathTemplate = new UpstreamTemplatePatternCreator().Create(new FileReRoute()
-            {
-                UpstreamPathTemplate = "api/product/products/{productId}/variants/"
-            });
+            _reRoute = new ReRouteBuilder().WithUpstreamPathTemplate(
+                new UpstreamTemplatePatternCreator().Create(
+                    new FileReRoute
+                    {
+                        UpstreamPathTemplate = "api/product/products/{productId}/variants/"
+                    }
+                )
+            ).Build();
             _downstreamUrlPath = "api/product/products/1/variants/?soldout=false";
         }
 
         [Benchmark(Baseline = true)]
         public void Baseline()
         {
-            _urlPathMatcher.Match(_downstreamUrlPath, _upstreamQuery, _pathTemplate);
+            _urlPathMatcher.Match(_downstreamUrlPath, _upstreamQuery, _reRoute);
         }
 
         // * Summary *

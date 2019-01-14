@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Ocelot.Configuration.Builder;
+using Ocelot.DownstreamRouteFinder;
 using Ocelot.DownstreamRouteFinder.UrlMatcher;
 using Ocelot.Responses;
 using Ocelot.Values;
@@ -13,7 +15,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder.UrlMatcher
         private readonly IUrlPathToUrlTemplateMatcher _urlMatcher;
         private string _path;
         private string _downstreamPathTemplate;
-        private Response<UrlMatch> _result;
+        private Response<DownstreamRoute> _result;
         private string _queryString;
         private bool _containsQueryString;
 
@@ -272,17 +274,21 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder.UrlMatcher
 
         private void WhenIMatchThePaths()
         {
-            _result = _urlMatcher.Match(_path, _queryString, new UpstreamPathTemplate(_downstreamPathTemplate, 0, _containsQueryString, _downstreamPathTemplate, new List<string>()));
+            _result = _urlMatcher.Match(_path, _queryString,
+                new ReRouteBuilder()
+                    .WithUpstreamPathTemplate(new UpstreamPathTemplate(_downstreamPathTemplate, 0, _containsQueryString,
+                        _downstreamPathTemplate, new List<string>()))
+                    .Build());
         }
 
         private void ThenTheResultIsTrue()
         {
-            _result.Data.IsMatch.ShouldBeTrue();
+            _result.IsError.ShouldBeFalse();
         }
 
         private void ThenTheResultIsFalse()
         {
-            _result.Data.IsMatch.ShouldBeFalse();
+            _result.IsError.ShouldBeTrue();
         }
 
         private void GivenThereIsAQueryInTemplate()

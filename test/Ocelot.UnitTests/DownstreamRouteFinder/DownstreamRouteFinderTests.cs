@@ -22,7 +22,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
         private Response<DownstreamRoute> _result;
         private List<ReRoute> _reRoutesConfig;
         private InternalConfiguration _config;
-        private Response<UrlMatch> _match;
+        private Response<DownstreamRoute> _match;
         private string _upstreamHttpMethod;
         private string _upstreamHost;
         private string _upstreamQuery;
@@ -62,7 +62,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
                         .WithUpstreamPathTemplate(new UpstreamPathTemplate("test", 0, false, "someUpstreamPath", new List<string>()))
                         .Build()
                 }, string.Empty, serviceProviderConfig))
-                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<UrlMatch>(new UrlMatch(Regex.Match("someUpstreamPath", "someUpstreamPath")))))
+                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<DownstreamRoute>(new DownstreamRoute(new Dictionary<string, string>(),_reRoutesConfig[0]))))
                 .And(x => x.GivenTheUpstreamHttpMethodIs("Post"))
                 .When(x => x.WhenICallTheFinder())
                 .Then(x => x.ThenTheFollowingIsReturned(new DownstreamRoute(new Dictionary<string, string>(),
@@ -108,7 +108,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
                         .WithUpstreamPathTemplate(new UpstreamPathTemplate("test", 1, false, "someUpstreamPath", new List<string>()))
                         .Build()
                 }, string.Empty, serviceProviderConfig))
-                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<UrlMatch>(new UrlMatch(Regex.Match("someUpstreamPath", "someUpstreamPath")))))
+                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<DownstreamRoute>(new DownstreamRoute(new Dictionary<string, string>(),_reRoutesConfig[0]))))
                 .And(x => x.GivenTheUpstreamHttpMethodIs("Post"))
                 .When(x => x.WhenICallTheFinder())
                 .Then(x => x.ThenTheFollowingIsReturned(new DownstreamRoute(new Dictionary<string, string>(),
@@ -147,7 +147,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
                         .Build()
                 }, string.Empty, serviceProviderConfig
                 ))
-                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<UrlMatch>(new UrlMatch(Regex.Match("someUpstreamPath", "someUpstreamPath")))))
+                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<DownstreamRoute>(new DownstreamRoute(new Dictionary<string, string>(),_reRoutesConfig[0]))))
                 .And(x => x.GivenTheUpstreamHttpMethodIs("Get"))
                 .When(x => x.WhenICallTheFinder())
                 .Then(
@@ -189,7 +189,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
                         .Build()
                 }, string.Empty, serviceProviderConfig
                 ))
-                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<UrlMatch>(new UrlMatch(Regex.Match("someUpstreamPath", "someUpstreamPath")))))
+                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<DownstreamRoute>(new DownstreamRoute(new Dictionary<string, string>(),_reRoutesConfig[0]))))
                 .And(x => x.GivenTheUpstreamHttpMethodIs("Get"))
                 .When(x => x.WhenICallTheFinder())
                 .Then(
@@ -232,7 +232,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
                         .Build()
                 }, string.Empty, serviceProviderConfig
                     ))
-                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<UrlMatch>(new UrlMatch(Regex.Match("someUpstreamPath", "someUpstreamPath")))))
+                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<DownstreamRoute>(new DownstreamRoute(new Dictionary<string, string>(),_reRoutesConfig[0]))))
                 .And(x => x.GivenTheUpstreamHttpMethodIs("Get"))
                 .When(x => x.WhenICallTheFinder())
                 .Then(
@@ -282,7 +282,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
                         .Build()
                 }, string.Empty, serviceProviderConfig
                     ))
-                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<UrlMatch>(new UrlMatch(Regex.Match("someUpstreamPath", "someUpstreamPath")))))
+                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<DownstreamRoute>(new DownstreamRoute(new Dictionary<string, string>(),_reRoutesConfig[0]))))
                 .And(x => x.GivenTheUpstreamHttpMethodIs("Post"))
                 .When(x => x.WhenICallTheFinder())
                 .Then(
@@ -319,7 +319,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
                         .Build(),   
                      }, string.Empty, serviceProviderConfig
                  ))
-                 .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<UrlMatch>(new UrlMatch(Regex.Match("no", "someUpstreamPath")))))
+                 .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<DownstreamRoute>(new DownstreamRoute(new Dictionary<string, string>(),_reRoutesConfig[0]))))
                  .And(x => x.GivenTheUpstreamHttpMethodIs("Get"))
                  .When(x => x.WhenICallTheFinder())
                  .Then(
@@ -351,7 +351,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
                         .Build()
                 }, string.Empty, serviceProviderConfig
                     ))
-                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<UrlMatch>(new UrlMatch(Regex.Match("someUpstreamPath", "someUpstreamPath")))))
+                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<DownstreamRoute>(new DownstreamRoute(new Dictionary<string, string>(),_reRoutesConfig[0]))))
                 .And(x => x.GivenTheUpstreamHttpMethodIs("Post"))
                 .When(x => x.WhenICallTheFinder())
                 .Then(
@@ -392,7 +392,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
                         .Build()
                 }, string.Empty, serviceProviderConfig
                     ))
-                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<UrlMatch>(new UrlMatch(Regex.Match("someUpstreamPath", "someUpstreamPath")))))
+                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<DownstreamRoute>(new DownstreamRoute(new Dictionary<string, string>(),_reRoutesConfig[0]))))
                 .And(x => x.GivenTheUpstreamHttpMethodIs("Post"))
                 .When(x => x.WhenICallTheFinder())
                 .Then(
@@ -433,7 +433,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
                         .Build()
                 }, string.Empty, serviceProviderConfig
                     ))
-                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<UrlMatch>(new UrlMatch(Regex.Match("someUpstreamPath", "someUpstreamPath")))))
+                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<DownstreamRoute>(new DownstreamRoute(new Dictionary<string, string>(),_reRoutesConfig[0]))))
                 .And(x => x.GivenTheUpstreamHttpMethodIs("Post"))
                 .When(x => x.WhenICallTheFinder())
                  .Then(x => x.ThenAnErrorResponseIsReturned())
@@ -465,7 +465,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
                             .Build()
                     }, string.Empty, serviceProviderConfig
                 ))
-                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<UrlMatch>(new UrlMatch(Regex.Match("someUpstreamPath", "someUpstreamPath")))))
+                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<DownstreamRoute>(new DownstreamRoute(new Dictionary<string, string>(),_reRoutesConfig[0]))))
                 .And(x => x.GivenTheUpstreamHttpMethodIs("Get"))
                 .When(x => x.WhenICallTheFinder())
                 .Then(
@@ -508,7 +508,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
                             .Build()
                     }, string.Empty, serviceProviderConfig
                 ))
-                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<UrlMatch>(new UrlMatch(Regex.Match("someUpstreamPath", "someUpstreamPath")))))
+                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<DownstreamRoute>(new DownstreamRoute(new Dictionary<string, string>(),_reRoutesConfig[0]))))
                 .And(x => x.GivenTheUpstreamHttpMethodIs("Get"))
                 .When(x => x.WhenICallTheFinder())
                 .Then(
@@ -560,7 +560,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
                             .Build()
                     }, string.Empty, serviceProviderConfig
                 ))
-                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<UrlMatch>(new UrlMatch(Regex.Match("someUpstreamPath", "someUpstreamPath")))))
+                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<DownstreamRoute>(new DownstreamRoute(new Dictionary<string, string>(),_reRoutesConfig[0]))))
                 .And(x => x.GivenTheUpstreamHttpMethodIs("Get"))
                 .When(x => x.WhenICallTheFinder())
                 .Then(x => x.ThenAnErrorResponseIsReturned())
@@ -590,7 +590,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
                             .Build()
                     }, string.Empty, serviceProviderConfig
                 ))
-                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<UrlMatch>(new UrlMatch(Regex.Match("someUpstreamPath", "someUpstreamPath")))))
+                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<DownstreamRoute>(new DownstreamRoute(new Dictionary<string, string>(),_reRoutesConfig[0]))))
                 .And(x => x.GivenTheUpstreamHttpMethodIs("Get"))
                 .When(x => x.WhenICallTheFinder())
                 .Then(x => x.ThenAnErrorResponseIsReturned())
@@ -620,7 +620,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
                             .Build()
                     }, string.Empty, serviceProviderConfig
                 ))
-                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<UrlMatch>(new UrlMatch(Regex.Match("someUpstreamPath", "someUpstreamPath")))))
+                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<DownstreamRoute>(new DownstreamRoute(new Dictionary<string, string>(),_reRoutesConfig[0]))))
                 .And(x => x.GivenTheUpstreamHttpMethodIs("Get"))
                 .When(x => x.WhenICallTheFinder())
                 .And(x => x.ThenTheUrlMatcherIsCalledCorrectly(1, 0))
@@ -660,7 +660,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
                             .Build()
                     }, string.Empty, serviceProviderConfig
                 ))
-                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<UrlMatch>(new UrlMatch(Regex.Match("someUpstreamPath", "someUpstreamPath")))))
+                .And(x => x.GivenTheUrlMatcherReturns(new OkResponse<DownstreamRoute>(new DownstreamRoute(new Dictionary<string, string>(),_reRoutesConfig[0]))))
                 .And(x => x.GivenTheUpstreamHttpMethodIs("Get"))
                 .When(x => x.WhenICallTheFinder())
                 .Then(
@@ -706,32 +706,32 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
         private void ThenTheUrlMatcherIsCalledCorrectly()
         {
             _mockMatcher
-                .Verify(x => x.Match(_upstreamUrlPath, _upstreamQuery, _reRoutesConfig[0].UpstreamTemplatePattern), Times.Once);
+                .Verify(x => x.Match(_upstreamUrlPath, _upstreamQuery, _reRoutesConfig[0]), Times.Once);
         }
 
         private void ThenTheUrlMatcherIsCalledCorrectly(int times, int index = 0)
         {
             _mockMatcher
-                .Verify(x => x.Match(_upstreamUrlPath, _upstreamQuery, _reRoutesConfig[index].UpstreamTemplatePattern), Times.Exactly(times));
+                .Verify(x => x.Match(_upstreamUrlPath, _upstreamQuery, _reRoutesConfig[index]), Times.Exactly(times));
         }
 
         private void ThenTheUrlMatcherIsCalledCorrectly(string expectedUpstreamUrlPath)
         {
             _mockMatcher
-                .Verify(x => x.Match(expectedUpstreamUrlPath, _upstreamQuery, _reRoutesConfig[0].UpstreamTemplatePattern), Times.Once);
+                .Verify(x => x.Match(expectedUpstreamUrlPath, _upstreamQuery, _reRoutesConfig[0]), Times.Once);
         }
 
         private void ThenTheUrlMatcherIsNotCalled()
         {
             _mockMatcher
-                .Verify(x => x.Match(_upstreamUrlPath, _upstreamQuery, _reRoutesConfig[0].UpstreamTemplatePattern), Times.Never);
+                .Verify(x => x.Match(_upstreamUrlPath, _upstreamQuery, _reRoutesConfig[0]), Times.Never);
         }
 
-        private void GivenTheUrlMatcherReturns(Response<UrlMatch> match)
+        private void GivenTheUrlMatcherReturns(Response<DownstreamRoute> match)
         {
             _match = match;
             _mockMatcher
-                .Setup(x => x.Match(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<UpstreamPathTemplate>()))
+                .Setup(x => x.Match(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<ReRoute>()))
                 .Returns(_match);
         }
 

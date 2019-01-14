@@ -212,7 +212,7 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
         private void ThenTheDownstreamRouteIsCreated()
         {
             _result.Data.ReRoute.DownstreamReRoute[0].DownstreamPathTemplate.Value.ShouldBe("/test");
-            _result.Data.ReRoute.UpstreamHttpMethod[0].ShouldBe(HttpMethod.Get);
+            _result.Data.ReRoute.UpstreamHttpMethod.Contains(HttpMethod.Get).ShouldBeTrue();
             _result.Data.ReRoute.DownstreamReRoute[0].ServiceName.ShouldBe("auth");
             _result.Data.ReRoute.DownstreamReRoute[0].LoadBalancerKey.ShouldBe("/auth/test|GET");
             _result.Data.ReRoute.DownstreamReRoute[0].UseServiceDiscovery.ShouldBeTrue();

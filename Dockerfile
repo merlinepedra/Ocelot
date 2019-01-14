@@ -12,6 +12,13 @@ WORKDIR /build
 #First we add only the project files so that we can cache nuget packages with dotnet restore
 COPY Ocelot.sln Ocelot.sln
 COPY src/Ocelot/Ocelot.csproj src/Ocelot/Ocelot.csproj
+COPY src/Ocelot.Administration/Ocelot.Administration.csproj src/Ocelot.Administration/Ocelot.Administration.csproj
+COPY src/Ocelot.Cache.CacheManager/Ocelot.Cache.CacheManager.csproj src/Ocelot.Cache.CacheManager/Ocelot.Cache.CacheManager.csproj
+COPY src/Ocelot.Provider.Consul/Ocelot.Provider.Consul.csproj src/Ocelot.Provider.Consul/Ocelot.Provider.Consul.csproj
+COPY src/Ocelot.Provider.Eureka/Ocelot.Provider.Eureka.csproj src/Ocelot.Provider.Eureka/Ocelot.Provider.Eureka.csproj
+COPY src/Ocelot.Provider.Polly/Ocelot.Provider.Polly.csproj src/Ocelot.Provider.Polly/Ocelot.Provider.Polly.csproj
+COPY src/Ocelot.Provider.Rafty/Ocelot.Provider.Rafty.csproj src/Ocelot.Provider.Rafty/Ocelot.Provider.Rafty.csproj
+COPY src/Ocelot.Tracing.Butterfly/Ocelot.Tracing.Butterfly.csproj src/Ocelot.Tracing.Butterfly/Ocelot.Tracing.Butterfly.csproj
 COPY test/Ocelot.AcceptanceTests/Ocelot.AcceptanceTests.csproj test/Ocelot.AcceptanceTests/Ocelot.AcceptanceTests.csproj
 COPY test/Ocelot.ManualTest/Ocelot.ManualTest.csproj test/Ocelot.ManualTest/Ocelot.ManualTest.csproj
 COPY test/Ocelot.IntegrationTests/Ocelot.IntegrationTests.csproj test/Ocelot.IntegrationTests/Ocelot.IntegrationTests.csproj

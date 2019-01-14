@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using System.Linq;
+using System.Net.Http;
 using Ocelot.Configuration.Repository;
 using Ocelot.DownstreamRouteFinder.Finder;
 using Ocelot.Infrastructure.Extensions;
@@ -28,17 +29,11 @@ namespace Ocelot.DownstreamRouteFinder.Middleware
 
         public async Task Invoke(DownstreamContext context)
         {
-            var upstreamUrlPath = context.HttpContext.Request.Path.ToString();
-
-            var upstreamQueryString = context.HttpContext.Request.QueryString.ToString();
-
-            var upstreamHost = context.HttpContext.Request.Headers["Host"];
-
-            Logger.LogDebug($"Upstream url path is {upstreamUrlPath}");
+            Logger.LogDebug($"Upstream url path is {context.HttpContext.Request.Path}");
 
             var provider = _factory.Get(context.Configuration);
 
-            var downstreamRoute = provider.Get(upstreamUrlPath, upstreamQueryString, context.HttpContext.Request.Method, context.Configuration, upstreamHost);
+            var downstreamRoute = provider.Get(context.HttpContext.Request, context.Configuration);
 
             if (downstreamRoute.IsError)
             {

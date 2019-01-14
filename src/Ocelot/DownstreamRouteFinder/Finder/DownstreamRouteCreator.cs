@@ -1,4 +1,6 @@
-﻿namespace Ocelot.DownstreamRouteFinder.Finder
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Ocelot.DownstreamRouteFinder.Finder
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
@@ -22,11 +24,11 @@
             _cache = new ConcurrentDictionary<string, OkResponse<DownstreamRoute>>();
         }
 
-        public Response<DownstreamRoute> Get(string upstreamUrlPath, string upstreamQueryString, string upstreamHttpMethod, IInternalConfiguration configuration, string upstreamHost)
+        public Response<DownstreamRoute> Get(HttpRequest request, IInternalConfiguration configuration)
         {            
-            var serviceName = GetServiceName(upstreamUrlPath);
+            var serviceName = GetServiceName(request.Path.Value);
 
-            var downstreamPath = GetDownstreamPath(upstreamUrlPath);
+            var downstreamPath = GetDownstreamPath(request.Path.Value);
 
             if(HasQueryString(downstreamPath))
             {
@@ -35,16 +37,16 @@
 
             var downstreamPathForKeys = $"/{serviceName}{downstreamPath}";
 
-            var loadBalancerKey = CreateLoadBalancerKey(downstreamPathForKeys, upstreamHttpMethod, configuration.LoadBalancerOptions);
+            var loadBalancerKey = CreateLoadBalancerKey(downstreamPathForKeys, request.Method, configuration.LoadBalancerOptions);
 
             if(_cache.TryGetValue(loadBalancerKey, out var downstreamRoute))
             {
                 return downstreamRoute;
             }
 
-            var qosOptions = _qoSOptionsCreator.Create(configuration.QoSOptions, downstreamPathForKeys, new List<string> { upstreamHttpMethod });
+            var qosOptions = _qoSOptionsCreator.Create(configuration.QoSOptions, downstreamPathForKeys, new List<string> { request.Method });
 
-            var upstreamPathTemplate = new UpstreamPathTemplateBuilder().WithOriginalValue(upstreamUrlPath).Build();
+            var upstreamPathTemplate = new UpstreamPathTemplateBuilder().WithOriginalValue(request.Path.Value).Build();
 
             var downstreamReRouteBuilder = new DownstreamReRouteBuilder()
                 .WithServiceName(serviceName)
@@ -74,7 +76,7 @@
 
             var reRoute = new ReRouteBuilder()
                 .WithDownstreamReRoute(downstreamReRoute)
-                .WithUpstreamHttpMethod(new List<string>(){ upstreamHttpMethod })
+                .WithUpstreamHttpMethod(new List<string>(){ request.Method })
                 .WithUpstreamPathTemplate(upstreamPathTemplate)
                 .Build();
 
