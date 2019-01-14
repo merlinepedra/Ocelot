@@ -1,32 +1,29 @@
-﻿using Ocelot.Placeholders;
-using Ocelot.Placeholders.Providers;
-
-namespace Ocelot.UnitTests.DownstreamUrlCreator
+﻿namespace Ocelot.UnitTests.DownstreamUrlCreator
 {
     using System;
     using System.Collections.Generic;
     using System.Net.Http;
     using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Http;
     using Moq;
+    using Ocelot.Configuration;
     using Ocelot.Configuration.Builder;
     using Ocelot.DownstreamRouteFinder;
-    using Ocelot.DownstreamRouteFinder.UrlMatcher;
     using Ocelot.DownstreamUrlCreator.Middleware;
-    using Ocelot.DownstreamUrlCreator.UrlTemplateReplacer;
     using Ocelot.Logging;
-    using Ocelot.Responses;
-    using Ocelot.Values;
-    using TestStack.BDDfy;
-    using Xunit;
-    using Shouldly;
-    using Microsoft.AspNetCore.Http;
-    using Ocelot.Request.Middleware;
-    using Ocelot.Configuration;
     using Ocelot.Middleware;
+    using Ocelot.Request.Middleware;
+    using Placeholders;
+    using Placeholders.Providers;
+    using Responses;
+    using Shouldly;
+    using TestStack.BDDfy;
+    using Values;
+    using Xunit;
 
     public class DownstreamUrlCreatorMiddlewareTests
     {
-        private readonly Mock<IDownstreamPathPlaceholderReplacer> _downstreamUrlTemplateVariableReplacer;
+        private readonly Mock<IPlaceholderProcessor> _downstreamUrlTemplateVariableReplacer;
         private OkResponse<DownstreamPath> _downstreamPath;
         private readonly Mock<IOcelotLoggerFactory> _loggerFactory;
         private Mock<IOcelotLogger> _logger;
@@ -41,7 +38,7 @@ namespace Ocelot.UnitTests.DownstreamUrlCreator
             _loggerFactory = new Mock<IOcelotLoggerFactory>();
             _logger = new Mock<IOcelotLogger>();
             _loggerFactory.Setup(x => x.CreateLogger<DownstreamUrlCreatorMiddleware>()).Returns(_logger.Object);
-            _downstreamUrlTemplateVariableReplacer = new Mock<IDownstreamPathPlaceholderReplacer>();
+            _downstreamUrlTemplateVariableReplacer = new Mock<IPlaceholderProcessor>();
             _request = new HttpRequestMessage(HttpMethod.Get, "https://my.url/abc/?q=123");
             _downstreamContext.DownstreamRequest = new DownstreamRequest(_request);
             _next = context => Task.CompletedTask;
@@ -364,7 +361,6 @@ namespace Ocelot.UnitTests.DownstreamUrlCreator
         private void WhenICallTheMiddleware()
         {
             _middleware = new DownstreamUrlCreatorMiddleware(_next, _loggerFactory.Object,
-                _downstreamUrlTemplateVariableReplacer.Object,
                 new PlaceholderProcessor(new List<IPlaceholderProvider>{new DefaultPlaceholderProvider()}));
             _middleware.Invoke(_downstreamContext).GetAwaiter().GetResult();
         }
@@ -384,10 +380,10 @@ namespace Ocelot.UnitTests.DownstreamUrlCreator
         private void GivenTheUrlReplacerWillReturnSequence(params string[] paths)
         {
             var setup = _downstreamUrlTemplateVariableReplacer
-                .SetupSequence(x => x.Replace(It.IsAny<string>(), It.IsAny<List<PlaceholderNameAndValue>>()));
+                .SetupSequence(x => x.ProcessTemplate(It.IsAny<DownstreamContext>(), It.IsAny<string>()));
             foreach (var path in paths)
             {
-                var response = new OkResponse<DownstreamPath>(new DownstreamPath(path));
+                var response = new OkResponse<string>(path);
                 setup.Returns(response);
             }
         }
@@ -395,8 +391,8 @@ namespace Ocelot.UnitTests.DownstreamUrlCreator
         {
             _downstreamPath = new OkResponse<DownstreamPath>(new DownstreamPath(path));
             _downstreamUrlTemplateVariableReplacer
-                .Setup(x => x.Replace(It.IsAny<string>(), It.IsAny<List<PlaceholderNameAndValue>>()))
-                .Returns(_downstreamPath);
+                .Setup(x => x.ProcessTemplate(It.IsAny<DownstreamContext>(), It.IsAny<string>()))
+                .Returns(new OkResponse<string>(_downstreamPath.Data.Value));
         }
 
         private void ThenTheDownstreamRequestUriIs(string expectedUri)

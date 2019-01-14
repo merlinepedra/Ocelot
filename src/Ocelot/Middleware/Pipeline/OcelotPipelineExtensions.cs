@@ -9,7 +9,6 @@ using Ocelot.DownstreamUrlCreator.Middleware;
 using Ocelot.Errors.Middleware;
 using Ocelot.Headers.Middleware;
 using Ocelot.LoadBalancer.Middleware;
-using Ocelot.Placeholders.Middleware;
 using Ocelot.QueryStrings.Middleware;
 using Ocelot.RateLimit.Middleware;
 using Ocelot.Request.Middleware;
@@ -35,7 +34,6 @@ namespace Ocelot.Middleware.Pipeline
                 app =>
                 {
                     app.UseDownstreamRouteFinderMiddleware();
-                    app.UsePlaceholderMiddleware();
                     app.UseDownstreamRequestInitialiser();
                     app.UseLoadBalancingMiddleware();
                     app.UseDownstreamUrlCreatorMiddleware();
@@ -50,11 +48,6 @@ namespace Ocelot.Middleware.Pipeline
 
             // Then we get the downstream route information
             builder.UseDownstreamRouteFinderMiddleware();
-            
-            // Template matching was previously happening in DownstreamRouteFinder, I think it should happen after authentication, authorization,
-            // and security options, so that it only processes if the request is otherwise valid. Until then, putting it here to keep it consistent
-            // with previous behavior in case there is something I am not considering.
-            builder.UsePlaceholderMiddleware();
 
             // This security module, IP whitelist blacklist, extended security mechanism
             builder.UseSecurityMiddleware();
@@ -135,7 +128,7 @@ namespace Ocelot.Middleware.Pipeline
             // as the basis for our cache key.
             builder.UseOutputCacheMiddleware();
 
-            //We fire off the request and set the response on the scoped data repo
+            // We fire off the request and set the response on the scoped data repo
             builder.UseHttpRequesterMiddleware();
 
             return builder.Build();

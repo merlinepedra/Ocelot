@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using Ocelot.Configuration;
-using Ocelot.DownstreamRouteFinder.UrlMatcher;
-using Ocelot.Errors;
-using Ocelot.Responses;
-
-namespace Ocelot.DownstreamRouteFinder.Finder
+﻿namespace Ocelot.DownstreamRouteFinder.Finder
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text.RegularExpressions;
+    using Configuration;
+    using Responses;
+    using UrlMatcher;
+
     public class DownstreamRouteFinder : IDownstreamRouteProvider
     {
         private readonly IUrlPathToUrlTemplateMatcher _urlMatcher;

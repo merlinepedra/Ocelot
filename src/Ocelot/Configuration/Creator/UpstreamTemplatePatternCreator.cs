@@ -1,12 +1,12 @@
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
-using Ocelot.Configuration.File;
-using Ocelot.Placeholders;
-using Ocelot.Values;
-
 namespace Ocelot.Configuration.Creator
 {
+    using System.Collections.Generic;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using File;
+    using Infrastructure.Extensions;
+    using Values;
+
     public class UpstreamTemplatePatternCreator : IUpstreamTemplatePatternCreator
     {
         private const string RegExMatchOneOrMoreOfEverything = @".+";
@@ -16,13 +16,6 @@ namespace Ocelot.Configuration.Creator
         private const string RegExForwardSlashOnly = @"^/$";
         private const string RegExMatchQueryWithoutWrapping = @"[^&?]+";
         private const string RegExForwardSlashAndOnePlaceHolder = @"^/(?<key>.*)";
-
-        private readonly IPlaceholderProcessor _placeholderProcessor;
-
-        public UpstreamTemplatePatternCreator(IPlaceholderProcessor placeholderProcessor)
-        {
-            _placeholderProcessor = placeholderProcessor;
-        }
 
         public UpstreamPathTemplate Create(IReRoute reRoute)
         {
@@ -34,7 +27,7 @@ namespace Ocelot.Configuration.Creator
                 return new UpstreamPathTemplate(RegExForwardSlashOnly, reRoute.Priority, false, reRoute.UpstreamPathTemplate, keys);
             }
 
-            var matches = _placeholderProcessor.Match(originalUpstreamTemplate);
+            var matches = originalUpstreamTemplate.MatchPlaceholders();
 
             if (originalUpstreamTemplate.Substring(0, 2) == "/{" && matches.Count == 1 && originalUpstreamTemplate.Length == matches[0].Length + 1)
             {
@@ -42,7 +35,7 @@ namespace Ocelot.Configuration.Creator
                 keys.Add(key);
                 return new UpstreamPathTemplate(RegExForwardSlashAndOnePlaceHolder.Replace("key", key), 0, false, reRoute.UpstreamPathTemplate, keys);
             }
-            
+
             var upstreamTemplate = new StringBuilder(originalUpstreamTemplate, originalUpstreamTemplate.Length * 2);
 
             var containsQueryString = originalUpstreamTemplate.Contains("?");

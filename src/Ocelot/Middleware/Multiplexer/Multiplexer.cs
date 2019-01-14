@@ -22,7 +22,6 @@ namespace Ocelot.Middleware.Multiplexer
             {
                 var downstreamContext = new DownstreamContext(context.HttpContext)
                 {
-                    TemplatePlaceholderNameAndValues = context.TemplatePlaceholderNameAndValues,
                     Configuration = context.Configuration,
                     DownstreamReRoute = reRoute.DownstreamReRoute[i],
                     UpstreamUrlValues = context.UpstreamUrlValues

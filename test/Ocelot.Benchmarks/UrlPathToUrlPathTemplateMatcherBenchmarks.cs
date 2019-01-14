@@ -35,10 +35,7 @@ namespace Ocelot.Benchmarks
         public void SetUp()
         {
             _urlPathMatcher = new RegExUrlMatcher();
-            _pathTemplate = new UpstreamTemplatePatternCreator(new PlaceholderProcessor(new IPlaceholderProvider[]
-            {
-                new DefaultPlaceholderProvider()
-            })).Create(new FileReRoute()
+            _pathTemplate = new UpstreamTemplatePatternCreator().Create(new FileReRoute()
             {
                 UpstreamPathTemplate = "api/product/products/{productId}/variants/"
             });

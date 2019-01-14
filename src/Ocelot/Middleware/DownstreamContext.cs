@@ -1,24 +1,20 @@
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using Microsoft.AspNetCore.Http;
-using Ocelot.Configuration;
-using Ocelot.DownstreamRouteFinder.UrlMatcher;
-using Ocelot.Errors;
-using Ocelot.Request.Middleware;
-
 namespace Ocelot.Middleware
 {
+    using System.Collections.Generic;
+    using System.Collections.Immutable;
+    using Configuration;
+    using Errors;
+    using Microsoft.AspNetCore.Http;
+    using Ocelot.Request.Middleware;
+
     public class DownstreamContext
     {
         public DownstreamContext(HttpContext httpContext)
         {
             HttpContext = httpContext;
-            Errors = new List<Error>();
         }
 
-        public List<PlaceholderNameAndValue> TemplatePlaceholderNameAndValues { get; set; }
-        
-        public ImmutableDictionary<string, string> UpstreamUrlValues { get; set; }
+        public ImmutableDictionary<string, string> UpstreamUrlValues { get; set; } = ImmutableDictionary<string, string>.Empty;
 
         public HttpContext HttpContext { get; }
 
@@ -28,7 +24,7 @@ namespace Ocelot.Middleware
 
         public DownstreamResponse DownstreamResponse { get; set; }
 
-        public List<Error> Errors { get; }
+        public List<Error> Errors { get; } = new List<Error>();
 
         public IInternalConfiguration Configuration { get; set; }
 

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Ocelot.Configuration.Builder;
 using Ocelot.DownstreamRouteFinder;
-using Ocelot.DownstreamRouteFinder.UrlMatcher;
-using Ocelot.DownstreamUrlCreator.UrlTemplateReplacer;
+using Ocelot.Placeholders;
+using Ocelot.Placeholders.Providers;
 using Ocelot.Responses;
 using Ocelot.Values;
 using Shouldly;
@@ -15,11 +15,14 @@ namespace Ocelot.UnitTests.DownstreamUrlCreator.UrlTemplateReplacer
     {
         private DownstreamRoute _downstreamRoute;
         private Response<DownstreamPath> _result;
-        private readonly IDownstreamPathPlaceholderReplacer _downstreamPathReplacer;
+        private readonly IPlaceholderProcessor _processor;
 
         public UpstreamUrlPathTemplateVariableReplacerTests()
         {
-            _downstreamPathReplacer = new DownstreamTemplatePathPlaceholderReplacer();
+            _processor = new PlaceholderProcessor(new List<IPlaceholderProvider>
+            {
+                new DefaultPlaceholderProvider()
+            });
         }
 
         [Fact]
@@ -199,7 +202,7 @@ namespace Ocelot.UnitTests.DownstreamUrlCreator.UrlTemplateReplacer
 
         private void WhenIReplaceTheTemplateVariables()
         {
-            //TODO: Fix _result = _downstreamPathReplacer.Replace(_downstreamRoute.ReRoute.DownstreamReRoute[0].DownstreamPathTemplate.Value, _downstreamRoute.TemplatePlaceholderNameAndValues);
+            //_result = _processor.ProcessTemplate(context, _downstreamRoute.ReRoute.DownstreamReRoute[0].DownstreamPathTemplate.Value);
         }
 
         private void ThenTheDownstreamUrlPathIsReturned(string expected)

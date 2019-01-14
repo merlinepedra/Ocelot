@@ -46,10 +46,10 @@ namespace Ocelot.DownstreamRouteFinder.Middleware
 
                 SetPipelineError(context, downstreamRoute.Errors);
                 return;
-            }            
-            
+            }
+
             var downstreamPathTemplates = string.Join(", ", downstreamRoute.Data.ReRoute.DownstreamReRoute.Select(r => r.DownstreamPathTemplate.Value));
-            
+
             Logger.LogDebug($"downstream templates are {downstreamPathTemplates}");
 
             context.UpstreamUrlValues = downstreamRoute.Data.UrlValues;

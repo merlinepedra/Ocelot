@@ -1,37 +1,30 @@
-using System.Threading.Tasks;
-using Ocelot.DownstreamUrlCreator.UrlTemplateReplacer;
-using Ocelot.Logging;
-using Ocelot.Middleware;
-using System;
-using Ocelot.Placeholders;
-using Ocelot.Responses;
-using Ocelot.Values;
-
 namespace Ocelot.DownstreamUrlCreator.Middleware
 {
+    using System;
     using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
+    using Logging;
+    using Ocelot.Middleware;
+    using Placeholders;
+    using Values;
 
     public class DownstreamUrlCreatorMiddleware : OcelotMiddleware
     {
         private readonly OcelotRequestDelegate _next;
-        private readonly IDownstreamPathPlaceholderReplacer _replacer;
         private readonly IPlaceholderProcessor _processor;
 
         public DownstreamUrlCreatorMiddleware(OcelotRequestDelegate next,
             IOcelotLoggerFactory loggerFactory,
-            IDownstreamPathPlaceholderReplacer replacer,
             IPlaceholderProcessor placeholderProcessor)
                 :base(loggerFactory.CreateLogger<DownstreamUrlCreatorMiddleware>())
         {
             _next = next;
-            _replacer = replacer;
             _processor = placeholderProcessor;
         }
 
         public async Task Invoke(DownstreamContext context)
         {
-            var response = _replacer
-                .Replace(context.DownstreamReRoute.DownstreamPathTemplate.Value, context.TemplatePlaceholderNameAndValues);
+            var response = _processor.ProcessTemplate(context, context.DownstreamReRoute.DownstreamPathTemplate.Value);
 
             if (response.IsError)
             {
@@ -42,16 +35,16 @@ namespace Ocelot.DownstreamUrlCreator.Middleware
             }
 
             context.DownstreamRequest.Scheme = context.DownstreamReRoute.DownstreamScheme;
+            var dsPath = new DownstreamPath(response.Data);
 
             if (ServiceFabricRequest(context))
             {
-                var pathAndQuery = CreateServiceFabricUri(context, response);
+                var pathAndQuery = CreateServiceFabricUri(context, dsPath);
                 context.DownstreamRequest.AbsolutePath = pathAndQuery.path;
                 context.DownstreamRequest.Query = pathAndQuery.query;
             }
             else
             {
-                var dsPath = response.Data;
 
                 if(ContainsQueryString(dsPath))
                 {
@@ -81,23 +74,19 @@ namespace Ocelot.DownstreamUrlCreator.Middleware
 
         private static void RemoveQueryStringParametersThatHaveBeenUsedInTemplate(DownstreamContext context)
         {
-            foreach (var nAndV in context.TemplatePlaceholderNameAndValues)
+            foreach (var keyValuePair in context.UpstreamUrlValues)
             {
-                var name = nAndV.Name.Replace("{", "").Replace("}", "");
+                if (!context.DownstreamRequest.Query.Contains(keyValuePair.Key) ||
+                    !context.DownstreamRequest.Query.Contains(keyValuePair.Value)) continue;
+                var questionMarkOrAmpersand = context.DownstreamRequest.Query.IndexOf(keyValuePair.Key, StringComparison.Ordinal);
+                context.DownstreamRequest.Query = context.DownstreamRequest.Query.Remove(questionMarkOrAmpersand - 1, 1);
 
-                if (context.DownstreamRequest.Query.Contains(name) &&
-                    context.DownstreamRequest.Query.Contains(nAndV.Value))
+                var rgx = new Regex($@"\b{keyValuePair.Key}={keyValuePair.Value}\b");
+                context.DownstreamRequest.Query = rgx.Replace(context.DownstreamRequest.Query, "");
+
+                if (!string.IsNullOrEmpty(context.DownstreamRequest.Query))
                 {
-                    var questionMarkOrAmpersand = context.DownstreamRequest.Query.IndexOf(name, StringComparison.Ordinal);
-                    context.DownstreamRequest.Query = context.DownstreamRequest.Query.Remove(questionMarkOrAmpersand - 1, 1);
-
-                    var rgx = new Regex($@"\b{name}={nAndV.Value}\b");
-                    context.DownstreamRequest.Query = rgx.Replace(context.DownstreamRequest.Query, "");
-
-                    if (!string.IsNullOrEmpty(context.DownstreamRequest.Query))
-                    {
-                        context.DownstreamRequest.Query = '?' + context.DownstreamRequest.Query.Substring(1);
-                    }
+                    context.DownstreamRequest.Query = '?' + context.DownstreamRequest.Query.Substring(1);
                 }
             }
         }
@@ -117,11 +106,11 @@ namespace Ocelot.DownstreamUrlCreator.Middleware
             return dsPath.Value.Contains("?");
         }
 
-        private (string path, string query) CreateServiceFabricUri(DownstreamContext context, Response<DownstreamPath> dsPath)
+        private (string path, string query) CreateServiceFabricUri(DownstreamContext context, DownstreamPath dsPath)
         {
             var query = context.DownstreamRequest.Query;
             var serviceName = _processor.ProcessTemplate(context, context.DownstreamReRoute.ServiceName);
-            var pathTemplate = $"/{serviceName}{dsPath.Data.Value}";
+            var pathTemplate = $"/{serviceName.Data}{dsPath.Value}";
             return (pathTemplate, query);
         }
 

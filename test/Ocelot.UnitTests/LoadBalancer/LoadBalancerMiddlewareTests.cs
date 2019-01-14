@@ -61,7 +61,7 @@ namespace Ocelot.UnitTests.LoadBalancer
 
             this.Given(x => x.GivenTheDownStreamUrlIs("http://my.url/abc?q=123"))
                 .And(x => GivenTheConfigurationIs(serviceProviderConfig))
-                .And(x => x.GivenTheDownStreamRouteIs(downstreamRoute, new List<Ocelot.DownstreamRouteFinder.UrlMatcher.PlaceholderNameAndValue>()))
+                .And(x => x.GivenTheDownStreamRouteIs(downstreamRoute))
                 .And(x => x.GivenTheLoadBalancerHouseReturns())
                 .And(x => x.GivenTheLoadBalancerReturns())
                 .When(x => x.WhenICallTheMiddleware())
@@ -81,7 +81,7 @@ namespace Ocelot.UnitTests.LoadBalancer
 
             this.Given(x => x.GivenTheDownStreamUrlIs("http://my.url/abc?q=123"))
                 .And(x => GivenTheConfigurationIs(serviceProviderConfig))
-                .And(x => x.GivenTheDownStreamRouteIs(downstreamRoute, new List<Ocelot.DownstreamRouteFinder.UrlMatcher.PlaceholderNameAndValue>()))
+                .And(x => x.GivenTheDownStreamRouteIs(downstreamRoute))
                 .And(x => x.GivenTheLoadBalancerHouseReturnsAnError())
                 .When(x => x.WhenICallTheMiddleware())
                 .Then(x => x.ThenAnErrorStatingLoadBalancerCouldNotBeFoundIsSetOnPipeline())
@@ -100,7 +100,7 @@ namespace Ocelot.UnitTests.LoadBalancer
 
             this.Given(x => x.GivenTheDownStreamUrlIs("http://my.url/abc?q=123"))
                 .And(x => GivenTheConfigurationIs(serviceProviderConfig))
-                .And(x => x.GivenTheDownStreamRouteIs(downstreamRoute, new List<Ocelot.DownstreamRouteFinder.UrlMatcher.PlaceholderNameAndValue>()))
+                .And(x => x.GivenTheDownStreamRouteIs(downstreamRoute))
                 .And(x => x.GivenTheLoadBalancerHouseReturns())
                 .And(x => x.GivenTheLoadBalancerReturnsAnError())
                 .When(x => x.WhenICallTheMiddleware())
@@ -143,9 +143,8 @@ namespace Ocelot.UnitTests.LoadBalancer
                 .ReturnsAsync(new OkResponse<ServiceHostAndPort>(_hostAndPort));
         }
 
-        private void GivenTheDownStreamRouteIs(DownstreamReRoute downstreamRoute, List<Ocelot.DownstreamRouteFinder.UrlMatcher.PlaceholderNameAndValue> placeholder)
+        private void GivenTheDownStreamRouteIs(DownstreamReRoute downstreamRoute)
         {
-            _downstreamContext.TemplatePlaceholderNameAndValues = placeholder;
             _downstreamContext.DownstreamReRoute = downstreamRoute;
         }
 

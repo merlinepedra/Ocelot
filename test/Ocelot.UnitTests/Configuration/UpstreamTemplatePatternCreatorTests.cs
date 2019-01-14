@@ -17,10 +17,7 @@ namespace Ocelot.UnitTests.Configuration
 
         public UpstreamTemplatePatternCreatorTests()
         {
-            _creator = new UpstreamTemplatePatternCreator(new PlaceholderProcessor(new IPlaceholderProvider[]
-            {
-                new DefaultPlaceholderProvider()
-            }));
+            _creator = new UpstreamTemplatePatternCreator();
         }
 
         [Fact]
