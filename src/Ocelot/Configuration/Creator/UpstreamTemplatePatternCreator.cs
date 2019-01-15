@@ -9,17 +9,23 @@ namespace Ocelot.Configuration.Creator
 
     public class UpstreamTemplatePatternCreator : IUpstreamTemplatePatternCreator
     {
+        private const string RegExMatchEverything = @".*";
         private const string RegExMatchOneOrMoreOfEverything = @".+";
         private const string RegExMatchOneOrMoreOfEverythingUntilNextForwardSlash = @"[^/]+";
         private const string RegExMatchEndString = @"$";
         private const string RegExIgnoreCase = @"(?i)";
         private const string RegExForwardSlashOnly = @"^/$";
-        private const string RegExMatchQueryWithoutWrapping = @"[^&?]+";
-        private const string RegExForwardSlashAndOnePlaceHolder = @"^/(?<key>.*)";
+        private const string RegExQuerySegment = @"[^&]+";
 
         public UpstreamPathTemplate Create(IReRoute reRoute)
         {
-            var originalUpstreamTemplate = reRoute.UpstreamPathTemplate;
+            var urlParts = reRoute.UpstreamPathTemplate.Split(new []{'?'}, 2);
+            var hasQuery = urlParts.Length > 1;
+            var originalUpstreamTemplate = urlParts[0];
+            var queryTemplate = hasQuery ? urlParts[1] : null;
+            var caseSensitive = reRoute.ReRouteIsCaseSensitive;
+            var priority = reRoute.Priority;
+
             var keys = new List<string>();
 
             if (originalUpstreamTemplate == "/")
@@ -27,46 +33,27 @@ namespace Ocelot.Configuration.Creator
                 return new UpstreamPathTemplate(RegExForwardSlashOnly, reRoute.Priority, false, reRoute.UpstreamPathTemplate, keys);
             }
 
-            var matches = originalUpstreamTemplate.MatchPlaceholders();
+            var upstreamTemplate = new StringBuilder(originalUpstreamTemplate, reRoute.UpstreamPathTemplate.Length * 2);
 
-            if (originalUpstreamTemplate.Substring(0, 2) == "/{" && matches.Count == 1 && originalUpstreamTemplate.Length == matches[0].Length + 1)
+            var lastSlashBeforeQuery = originalUpstreamTemplate.LastIndexOf('/');
+
+            foreach (Match match in originalUpstreamTemplate.MatchPlaceholders())
             {
-                var key = matches[0].Value.Substring(1, matches[0].Length - 2);
-                keys.Add(key);
-                return new UpstreamPathTemplate(RegExForwardSlashAndOnePlaceHolder.Replace("key", key), 0, false, reRoute.UpstreamPathTemplate, keys);
-            }
-
-            var upstreamTemplate = new StringBuilder(originalUpstreamTemplate, originalUpstreamTemplate.Length * 2);
-
-            var containsQueryString = originalUpstreamTemplate.Contains("?");
-            var queryIndex = int.MaxValue;
-
-            if (containsQueryString)
-            {
-                queryIndex = originalUpstreamTemplate.IndexOf('?');
-                upstreamTemplate.Replace("?", "\\?");
-            }
-
-            var lastSlashBeforeQuery = containsQueryString
-                ? originalUpstreamTemplate.Substring(0, queryIndex).LastIndexOf('/')
-                : originalUpstreamTemplate.LastIndexOf('/');
-
-            foreach (Match match in matches)
-            {
-                var isCatchAll = match.Index > lastSlashBeforeQuery && match.Index < queryIndex;
-                var isQuery = match.Index > queryIndex;
+                string matcher;
                 var key = match.Value.Substring(1, match.Length - 2);
                 keys.Add(key);
-                string matcher;
-                if (!isQuery)
+                if (!hasQuery && match.Length + 1 == originalUpstreamTemplate.Length)
                 {
-                    matcher = isCatchAll
-                        ? RegExMatchOneOrMoreOfEverything
-                        : RegExMatchOneOrMoreOfEverythingUntilNextForwardSlash;
+                    matcher = RegExMatchEverything;
+                    caseSensitive = true;
+                    priority = 0;
                 }
                 else
                 {
-                    matcher = RegExMatchQueryWithoutWrapping;
+                    var isCatchAll = match.Index > lastSlashBeforeQuery;
+                    matcher = isCatchAll
+                        ? RegExMatchOneOrMoreOfEverything
+                        : RegExMatchOneOrMoreOfEverythingUntilNextForwardSlash;
                 }
                 upstreamTemplate.Replace(match.Value, $"(?<{key}>{matcher})");
             }
@@ -76,13 +63,35 @@ namespace Ocelot.Configuration.Creator
                 upstreamTemplate.Remove(upstreamTemplate.Length -1, 1).Append("(/|)");
             }
 
-            var endRegex = containsQueryString ? "" : RegExMatchEndString;
+            if (hasQuery)
+            {
+                upstreamTemplate.Append("\\?");
+                var querySegments = queryTemplate.Split('&');
+                for (var i = 0; i < querySegments.Length; i++)
+                {
+                    var segment = new StringBuilder(querySegments[i]);
+                    foreach (Match match in querySegments[i].MatchPlaceholders())
+                    {
+                        var key = match.Value.Substring(1, match.Length - 2);
+                        keys.Add(key);
+                        segment.Replace(match.Value, $"(?<{key}>{RegExQuerySegment})");
+                    }
 
-            var route = reRoute.ReRouteIsCaseSensitive 
+                    upstreamTemplate.Append(segment);
+                    if (i < querySegments.Length - 1)
+                    {
+                        upstreamTemplate.Append("|");
+                    }
+                }
+            }
+
+            var endRegex = hasQuery ? "" : RegExMatchEndString;
+
+            var route = caseSensitive 
                 ? $"^{upstreamTemplate}{endRegex}" 
                 : $"^{RegExIgnoreCase}{upstreamTemplate}{endRegex}";
 
-            return new UpstreamPathTemplate(route, reRoute.Priority, containsQueryString, reRoute.UpstreamPathTemplate, keys);
+            return new UpstreamPathTemplate(route, priority, hasQuery, reRoute.UpstreamPathTemplate, keys);
         }
     }
 }

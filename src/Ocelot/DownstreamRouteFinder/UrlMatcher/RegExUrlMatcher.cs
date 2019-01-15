@@ -1,4 +1,6 @@
-﻿namespace Ocelot.DownstreamRouteFinder.UrlMatcher
+﻿using System.Text.RegularExpressions;
+
+namespace Ocelot.DownstreamRouteFinder.UrlMatcher
 {
     using System.Collections.Generic;
     using System.Net.Http;
@@ -25,17 +27,24 @@
                 ? $"{request.Path}{request.QueryString}"
                 : request.Path.Value;
             var match = reRoute.UpstreamTemplatePattern.Pattern.Match(matchPath);
+            if (!match.Success)
+            {
+                return NoMatch(request);
+            }
 
             // Add values to result
             var urlValues = new Dictionary<string, string>();
             foreach (var key in reRoute.UpstreamTemplatePattern.Keys)
             {
-                urlValues.Add(key, match.Groups[key].Value);
+                var group = match.Groups[key];
+                if (!group.Success || (group.Length == 0 && request.Path.Value.Length > 1))
+                {
+                    return NoMatch(request);
+                }
+                urlValues.Add(key, group.Value);
             }
 
-            return match.Success
-                ? new OkResponse<DownstreamRoute>(new DownstreamRoute(urlValues, reRoute))
-                : NoMatch(request);
+            return new OkResponse<DownstreamRoute>(new DownstreamRoute(urlValues, reRoute));
         }
 
         private Response<DownstreamRoute> NoMatch(HttpRequest request)
