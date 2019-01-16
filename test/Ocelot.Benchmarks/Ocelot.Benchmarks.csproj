@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Ocelot\Ocelot.csproj" />
+    <ProjectReference Include="..\Ocelot.Tests.Utility\Ocelot.Tests.Utility.csproj" />
   </ItemGroup>
 
   <ItemGroup>

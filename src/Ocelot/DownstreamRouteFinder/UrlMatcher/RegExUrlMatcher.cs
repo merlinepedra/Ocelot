@@ -17,7 +17,7 @@ namespace Ocelot.DownstreamRouteFinder.UrlMatcher
             if (!(reRoute.UpstreamHttpMethod.IsEmpty || // Reroute allows any method or
                   reRoute.UpstreamHttpMethod.Contains(new HttpMethod(request.Method))) || // Request is in the list of specified methods
                 !(string.IsNullOrWhiteSpace(reRoute.UpstreamHost) || // Reroute allows any host or
-                  reRoute.UpstreamHost.Equals(request.Headers["Host"]))) // Hosts match
+                  reRoute.UpstreamHost.Equals(request.Host.Host))) // Hosts match
             {
                 return NoMatch(request);
             }
@@ -37,7 +37,7 @@ namespace Ocelot.DownstreamRouteFinder.UrlMatcher
             foreach (var key in reRoute.UpstreamTemplatePattern.Keys)
             {
                 var group = match.Groups[key];
-                if (!group.Success || (group.Length == 0 && request.Path.Value.Length > 1))
+                if (!group.Success || (group.Length == 0 && request.Path.Value.Length > 1)) //make sure all placeholders were found, unless root catchall
                 {
                     return NoMatch(request);
                 }

@@ -28,6 +28,7 @@
     <ProjectReference Include="..\..\src\Ocelot.Provider.Polly\Ocelot.Provider.Polly.csproj" />
     <ProjectReference Include="..\..\src\Ocelot.Provider.Rafty\Ocelot.Provider.Rafty.csproj" />
     <ProjectReference Include="..\..\src\Ocelot.Tracing.Butterfly\Ocelot.Tracing.Butterfly.csproj" />
+    <ProjectReference Include="..\Ocelot.Tests.Utility\Ocelot.Tests.Utility.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http;
 using Moq;
 using Ocelot.Configuration;
 using Ocelot.Configuration.Builder;
@@ -7,6 +8,7 @@ using Ocelot.DownstreamRouteFinder;
 using Ocelot.DownstreamRouteFinder.Finder;
 using Ocelot.DownstreamRouteFinder.UrlMatcher;
 using Ocelot.Responses;
+using Ocelot.Tests.Utility;
 using Ocelot.Values;
 using Shouldly;
 using TestStack.BDDfy;
@@ -706,32 +708,57 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
         private void ThenTheUrlMatcherIsCalledCorrectly()
         {
             _mockMatcher
-                .Verify(x => x.Match(_upstreamUrlPath, _upstreamQuery, _reRoutesConfig[0]), Times.Once);
+                .Verify(x => x.Match(new FakeHttpRequest
+                {
+                    Path = new PathString(_upstreamUrlPath),
+                    QueryString = new QueryString(_upstreamQuery),
+                    Method = _upstreamHttpMethod,
+                    Host = new HostString(_upstreamHost)
+                }, _reRoutesConfig[0]), Times.Once);
+            
         }
 
         private void ThenTheUrlMatcherIsCalledCorrectly(int times, int index = 0)
         {
             _mockMatcher
-                .Verify(x => x.Match(_upstreamUrlPath, _upstreamQuery, _reRoutesConfig[index]), Times.Exactly(times));
+                .Verify(x => x.Match(new FakeHttpRequest
+                {
+                    Path = new PathString(_upstreamUrlPath),
+                    QueryString = new QueryString(_upstreamQuery),
+                    Method = _upstreamHttpMethod,
+                    Host = new HostString(_upstreamHost)
+                }, _reRoutesConfig[index]), Times.Exactly(times));
         }
 
         private void ThenTheUrlMatcherIsCalledCorrectly(string expectedUpstreamUrlPath)
         {
             _mockMatcher
-                .Verify(x => x.Match(expectedUpstreamUrlPath, _upstreamQuery, _reRoutesConfig[0]), Times.Once);
+                .Verify(x => x.Match(new FakeHttpRequest
+                {
+                    Path = new PathString(expectedUpstreamUrlPath),
+                    QueryString = new QueryString(_upstreamQuery),
+                    Method = _upstreamHttpMethod,
+                    Host = new HostString(_upstreamHost)
+                }, _reRoutesConfig[0]), Times.Once);
         }
 
         private void ThenTheUrlMatcherIsNotCalled()
         {
             _mockMatcher
-                .Verify(x => x.Match(_upstreamUrlPath, _upstreamQuery, _reRoutesConfig[0]), Times.Never);
+                .Verify(x => x.Match(new FakeHttpRequest
+                {
+                    Path = new PathString(_upstreamUrlPath),
+                    QueryString = new QueryString(_upstreamQuery),
+                    Method = _upstreamHttpMethod,
+                    Host = new HostString(_upstreamHost)
+                }, _reRoutesConfig[0]), Times.Never);
         }
 
         private void GivenTheUrlMatcherReturns(Response<DownstreamRoute> match)
         {
             _match = match;
             _mockMatcher
-                .Setup(x => x.Match(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<ReRoute>()))
+                .Setup(x => x.Match(It.IsAny<HttpRequest>(), It.IsAny<ReRoute>()))
                 .Returns(_match);
         }
 
@@ -748,7 +775,13 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
 
         private void WhenICallTheFinder()
         {
-            _result = _downstreamRouteFinder.Get(_upstreamUrlPath, _upstreamQuery, _upstreamHttpMethod, _config, _upstreamHost);
+            _result = _downstreamRouteFinder.Get(new FakeHttpRequest
+            {
+                Path = new PathString(_upstreamUrlPath),
+                QueryString = new QueryString(_upstreamQuery),
+                Method = _upstreamHttpMethod,
+                Host = new HostString(_upstreamHost)
+            }, _config);
         }
 
         private void ThenTheFollowingIsReturned(DownstreamRoute expected)

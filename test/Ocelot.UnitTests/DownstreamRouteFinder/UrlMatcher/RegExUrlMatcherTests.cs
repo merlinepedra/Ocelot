@@ -1,8 +1,11 @@
 using System.Collections.Generic;
+using System.Net.Http;
+using Microsoft.AspNetCore.Http;
 using Ocelot.Configuration.Builder;
 using Ocelot.DownstreamRouteFinder;
 using Ocelot.DownstreamRouteFinder.UrlMatcher;
 using Ocelot.Responses;
+using Ocelot.Tests.Utility;
 using Ocelot.Values;
 using Shouldly;
 using TestStack.BDDfy;
@@ -274,7 +277,12 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder.UrlMatcher
 
         private void WhenIMatchThePaths()
         {
-            _result = _urlMatcher.Match(_path, _queryString,
+            _result = _urlMatcher.Match(new FakeHttpRequest
+                {
+                    Path = new PathString(_path),
+                    QueryString = new QueryString(_queryString),
+                    Method = HttpMethod.Get.Method
+                },
                 new ReRouteBuilder()
                     .WithUpstreamPathTemplate(new UpstreamPathTemplate(_downstreamPathTemplate, 0, _containsQueryString,
                         _downstreamPathTemplate, new List<string>()))

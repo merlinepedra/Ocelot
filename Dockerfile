@@ -24,6 +24,7 @@ COPY test/Ocelot.ManualTest/Ocelot.ManualTest.csproj test/Ocelot.ManualTest/Ocel
 COPY test/Ocelot.IntegrationTests/Ocelot.IntegrationTests.csproj test/Ocelot.IntegrationTests/Ocelot.IntegrationTests.csproj
 COPY test/Ocelot.UnitTests/Ocelot.UnitTests.csproj test/Ocelot.UnitTests/Ocelot.UnitTests.csproj
 COPY test/Ocelot.Benchmarks/Ocelot.Benchmarks.csproj test/Ocelot.Benchmarks/Ocelot.Benchmarks.csproj
+COPY test/Ocelot.Tests.Utility/Ocelot.Tests.Utility.csproj test/Ocelot.Tests.Utility/Ocelot.Tests.Utility.csproj
 RUN dotnet restore
 #Now we add the rest of the source and run a complete build... --no-restore is used because nuget should be resolved at this point
 COPY codeanalysis.ruleset codeanalysis.ruleset

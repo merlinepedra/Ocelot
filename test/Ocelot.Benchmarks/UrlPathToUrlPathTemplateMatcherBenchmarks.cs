@@ -1,23 +1,21 @@
 using System;
 using System.Collections.Generic;
-using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Columns;
-using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Diagnosers;
-using BenchmarkDotNet.Validators;
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json.Serialization;
-using Ocelot.Configuration;
-using Ocelot.Configuration.Builder;
-using Ocelot.Configuration.Creator;
-using Ocelot.Configuration.File;
-using Ocelot.DownstreamRouteFinder.UrlMatcher;
-using Ocelot.Placeholders;
-using Ocelot.Placeholders.Providers;
-using Ocelot.Values;
 
 namespace Ocelot.Benchmarks
 {
+    using BenchmarkDotNet.Attributes;
+    using BenchmarkDotNet.Columns;
+    using BenchmarkDotNet.Configs;
+    using BenchmarkDotNet.Diagnosers;
+    using BenchmarkDotNet.Validators;
+    using Configuration;
+    using Configuration.Builder;
+    using Configuration.Creator;
+    using Configuration.File;
+    using DownstreamRouteFinder.UrlMatcher;
+    using Microsoft.AspNetCore.Http;
+    using Tests.Utility;
+
     [Config(typeof(UrlPathToUrlPathTemplateMatcherBenchmarks))]
     public class UrlPathToUrlPathTemplateMatcherBenchmarks : ManualConfig
     {
@@ -38,20 +36,28 @@ namespace Ocelot.Benchmarks
         {
             _urlPathMatcher = new RegExUrlMatcher();
             _reRoute = new ReRouteBuilder().WithUpstreamPathTemplate(
-                new UpstreamTemplatePatternCreator().Create(
-                    new FileReRoute
-                    {
-                        UpstreamPathTemplate = "api/product/products/{productId}/variants/"
-                    }
+                    new UpstreamTemplatePatternCreator().Create(
+                        new FileReRoute
+                        {
+                            UpstreamPathTemplate = "/api/product/products/{productId}/variants/"
+                        }
+                    )
                 )
-            ).Build();
-            _downstreamUrlPath = "api/product/products/1/variants/?soldout=false";
+                .WithUpstreamHttpMethod(new List<string>())
+                .WithUpstreamHost(string.Empty)
+                .Build();
+            _downstreamUrlPath = "/api/product/products/1/variants/?soldout=false";
         }
 
         [Benchmark(Baseline = true)]
         public void Baseline()
         {
-            _urlPathMatcher.Match(_downstreamUrlPath, _upstreamQuery, _reRoute);
+            _urlPathMatcher.Match(
+                new FakeHttpRequest
+                {
+                    Path = new PathString(_downstreamUrlPath),
+                    QueryString = new QueryString(_upstreamQuery)
+                }, _reRoute);
         }
 
         // * Summary *

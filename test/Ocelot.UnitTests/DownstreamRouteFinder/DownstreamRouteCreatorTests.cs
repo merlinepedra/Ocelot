@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Http;
+using Ocelot.Tests.Utility;
+
 namespace Ocelot.UnitTests.DownstreamRouteFinder
 {
     using System;
@@ -286,12 +289,23 @@ namespace Ocelot.UnitTests.DownstreamRouteFinder
 
         private void WhenICreate()
         {
-            _result = _creator.Get(_upstreamUrlPath, _upstreamQuery, _upstreamHttpMethod, _configuration, _upstreamHost);
+            _result = _creator.Get(CurrentRequest(), _configuration);
         }
 
         private void WhenICreateAgain()
         {
-            _resultTwo = _creator.Get(_upstreamUrlPath, _upstreamQuery, _upstreamHttpMethod, _configuration, _upstreamHost);
+            _resultTwo = _creator.Get(CurrentRequest(), _configuration);
+        }
+
+        private HttpRequest CurrentRequest()
+        {
+            return new FakeHttpRequest
+            {
+                Path = new PathString(_upstreamUrlPath),
+                QueryString = new QueryString(_upstreamQuery),
+                Method = _upstreamHttpMethod,
+                Host = new HostString(_upstreamHost)
+            };
         }
 
         private void ThenTheDownstreamRoutesAreTheSameReference()
