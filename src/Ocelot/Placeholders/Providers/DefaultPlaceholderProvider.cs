@@ -1,10 +1,9 @@
-using System.Collections.Generic;
-using System.Linq;
-using Ocelot.DownstreamRouteFinder.UrlMatcher;
-using Ocelot.Middleware;
-
 namespace Ocelot.Placeholders.Providers
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using Middleware;
+
     public class DefaultPlaceholderProvider : IPlaceholderProvider
     {
         // "default" is used when there are no other matches.
