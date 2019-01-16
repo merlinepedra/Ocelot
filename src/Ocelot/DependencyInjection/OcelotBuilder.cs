@@ -106,14 +106,15 @@ namespace Ocelot.DependencyInjection
             Services.TryAddSingleton<IDownstreamAddressesCreator, DownstreamAddressesCreator>();
             Services.TryAddSingleton<IDelegatingHandlerHandlerFactory, DelegatingHandlerHandlerFactory>();
             Services.TryAddSingleton<IHttpRequester, HttpClientHttpRequester>();
-            
-            //Register placeholder factor and providers
+
+            // Register placeholder processor and providers
             Services.TryAddSingleton<IPlaceholderProcessor, PlaceholderProcessor>();
             Services.AddSingleton<IPlaceholderProvider, DefaultPlaceholderProvider>();
             Services.AddSingleton<IPlaceholderProvider, ClaimsPlaceholderProvider>();
             Services.AddSingleton<IPlaceholderProvider, HttpPlaceholderProvider>();
             Services.AddSingleton<IPlaceholderProvider, HeaderPlaceholderProvider>();
             Services.AddSingleton<IPlaceholderProvider, CookiePlaceholderProvider>();
+            Services.AddSingleton<IPlaceholderProvider, QueryPlaceholderProvider>();
 
             // see this for why we register this as singleton http://stackoverflow.com/questions/37371264/invalidoperationexception-unable-to-resolve-service-for-type-microsoft-aspnetc
             // could maybe use a scoped data repository
