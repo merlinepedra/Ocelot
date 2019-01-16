@@ -23,6 +23,8 @@ namespace Ocelot.Placeholders.Providers
                     return new[] { context.HttpContext.Request.Scheme };
                 case "query":
                     return new[] { context.HttpContext.Request.QueryString.Value };
+                case "path":
+                    return new[] { context.HttpContext.Request.Path.Value };
                 default:
                     return new string[0];
             }
