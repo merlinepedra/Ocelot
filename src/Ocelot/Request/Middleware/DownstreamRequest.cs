@@ -30,6 +30,8 @@ namespace Ocelot.Request.Middleware
         public string Scheme { get; set; }
 
         public string Host { get; set; }
+        
+        public bool HostHasPlaceholders { get; set; }
 
         public int Port { get; set; }
 

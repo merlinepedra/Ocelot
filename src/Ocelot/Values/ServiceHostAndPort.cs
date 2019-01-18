@@ -11,5 +11,7 @@
         public string DownstreamHost { get; }
 
         public int DownstreamPort { get; }
+
+        public bool HasPlaceholders { get; set; } = false;
     }
 }

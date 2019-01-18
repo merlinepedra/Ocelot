@@ -1,3 +1,5 @@
+using Ocelot.Responses;
+
 namespace Ocelot.DownstreamUrlCreator.Middleware
 {
     using System;
@@ -24,7 +26,15 @@ namespace Ocelot.DownstreamUrlCreator.Middleware
 
         public async Task Invoke(DownstreamContext context)
         {
-            var response = _processor.ProcessTemplate(context, context.DownstreamReRoute.DownstreamPathTemplate.Value);
+            var template = context.DownstreamReRoute.DownstreamPathTemplate;
+            var response = template.HasPlaceholders
+                ? _processor.ProcessTemplate(context, template.Value)
+                : new OkResponse<string>(template.Value);
+
+            if (context.DownstreamRequest.HostHasPlaceholders)
+            {
+                context.DownstreamRequest.Host = _processor.ProcessTemplate(context, context.DownstreamRequest.Host).Data;
+            }
 
             if (response.IsError)
             {

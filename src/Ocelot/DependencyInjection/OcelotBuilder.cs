@@ -115,6 +115,7 @@ namespace Ocelot.DependencyInjection
             Services.AddSingleton<IPlaceholderProvider, HeaderPlaceholderProvider>();
             Services.AddSingleton<IPlaceholderProvider, CookiePlaceholderProvider>();
             Services.AddSingleton<IPlaceholderProvider, QueryPlaceholderProvider>();
+            Services.AddSingleton<IPlaceholderProvider, EnvironmentProvider>();
 
             // see this for why we register this as singleton http://stackoverflow.com/questions/37371264/invalidoperationexception-unable-to-resolve-service-for-type-microsoft-aspnetc
             // could maybe use a scoped data repository

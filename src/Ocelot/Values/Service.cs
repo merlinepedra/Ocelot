@@ -26,5 +26,6 @@ namespace Ocelot.Values
         public IEnumerable<string> Tags { get; }
 
         public ServiceHostAndPort HostAndPort { get; }
+
     }
 }

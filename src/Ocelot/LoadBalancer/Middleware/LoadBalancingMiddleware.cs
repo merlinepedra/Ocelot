@@ -39,6 +39,7 @@ namespace Ocelot.LoadBalancer.Middleware
             }
 
             context.DownstreamRequest.Host = hostAndPort.Data.DownstreamHost;
+            context.DownstreamRequest.HostHasPlaceholders = hostAndPort.Data.HasPlaceholders;
 
             if (hostAndPort.Data.DownstreamPort > 0)
             {
