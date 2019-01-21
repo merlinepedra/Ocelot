@@ -9,7 +9,7 @@ namespace Ocelot.DownstreamRouteFinder
     {
         public DownstreamRoute(Dictionary<string, string> upstreamValues, ReRoute reRoute)
         {
-            UrlValues = upstreamValues.ToImmutableDictionary();
+            UrlValues = upstreamValues?.ToImmutableDictionary();
             ReRoute = reRoute;
         }
 

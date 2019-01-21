@@ -31,7 +31,7 @@ namespace Ocelot.UnitTests.Configuration
 
             this.Given(x => x.GivenTheFollowingFileReRoute(fileReRoute))
                 .When(x => x.WhenICreateTheTemplatePattern())
-                .Then(x => x.ThenTheFollowingIsReturned("^(?i)/api/v[^/]+/cards$"))
+                .Then(x => x.ThenTheFollowingIsReturned("^(?i)/api/v(?<apiVersion>[^/]+)/cards$"))
                 .And(x => ThenThePriorityIs(0))
                 .BDDfy();
         }
@@ -47,7 +47,7 @@ namespace Ocelot.UnitTests.Configuration
 
             this.Given(x => x.GivenTheFollowingFileReRoute(fileReRoute))
                 .When(x => x.WhenICreateTheTemplatePattern())
-                .Then(x => x.ThenTheFollowingIsReturned("^(?i)/orders/.+$"))
+                .Then(x => x.ThenTheFollowingIsReturned("^(?i)/orders/(?<catchAll>.+)$"))
                 .And(x => ThenThePriorityIs(0))
                 .BDDfy();
         }
@@ -63,7 +63,7 @@ namespace Ocelot.UnitTests.Configuration
 
             this.Given(x => x.GivenTheFollowingFileReRoute(fileReRoute))
                 .When(x => x.WhenICreateTheTemplatePattern())
-                .Then(x => x.ThenTheFollowingIsReturned("^/.*"))
+                .Then(x => x.ThenTheFollowingIsReturned("^/(?<catchAll>.*)$"))
                 .And(x => ThenThePriorityIs(0))
                 .BDDfy();
         }
@@ -79,7 +79,7 @@ namespace Ocelot.UnitTests.Configuration
 
             this.Given(x => x.GivenTheFollowingFileReRoute(fileReRoute))
                 .When(x => x.WhenICreateTheTemplatePattern())
-                .Then(x => x.ThenTheFollowingIsReturned("^(?i)/PRODUCTS/.+$"))
+                .Then(x => x.ThenTheFollowingIsReturned("^(?i)/PRODUCTS/(?<productId>.+)$"))
                 .And(x => ThenThePriorityIs(1))
                 .BDDfy();
         }
@@ -110,7 +110,7 @@ namespace Ocelot.UnitTests.Configuration
                 };
             this.Given(x => x.GivenTheFollowingFileReRoute(fileReRoute))
                 .When(x => x.WhenICreateTheTemplatePattern())
-                .Then(x => x.ThenTheFollowingIsReturned("^/PRODUCTS/.+$"))
+                .Then(x => x.ThenTheFollowingIsReturned("^/PRODUCTS/(?<productId>.+)$"))
                 .And(x => ThenThePriorityIs(1))
                 .BDDfy();
         }
@@ -126,7 +126,7 @@ namespace Ocelot.UnitTests.Configuration
 
             this.Given(x => x.GivenTheFollowingFileReRoute(fileReRoute))
                 .When(x => x.WhenICreateTheTemplatePattern())
-                .Then(x => x.ThenTheFollowingIsReturned("^/api/products/.+$"))
+                .Then(x => x.ThenTheFollowingIsReturned("^/api/products/(?<productId>.+)$"))
                 .And(x => ThenThePriorityIs(1))
                 .BDDfy();
         }
@@ -142,7 +142,7 @@ namespace Ocelot.UnitTests.Configuration
 
             this.Given(x => x.GivenTheFollowingFileReRoute(fileReRoute))
                 .When(x => x.WhenICreateTheTemplatePattern())
-                .Then(x => x.ThenTheFollowingIsReturned("^/api/products/[^/]+/variants/.+$"))
+                .Then(x => x.ThenTheFollowingIsReturned("^/api/products/(?<productId>[^/]+)/variants/(?<variantId>.+)$"))
                 .And(x => ThenThePriorityIs(1))
                 .BDDfy();
         }
@@ -158,7 +158,7 @@ namespace Ocelot.UnitTests.Configuration
 
             this.Given(x => x.GivenTheFollowingFileReRoute(fileReRoute))
                 .When(x => x.WhenICreateTheTemplatePattern())
-                .Then(x => x.ThenTheFollowingIsReturned("^/api/products/[^/]+/variants/[^/]+(/|)$"))
+                .Then(x => x.ThenTheFollowingIsReturned("^/api/products/(?<productId>[^/]+)/variants/(?<variantId>[^/]+)(/|)$"))
                 .And(x => ThenThePriorityIs(1))
                 .BDDfy();
         }
@@ -188,7 +188,7 @@ namespace Ocelot.UnitTests.Configuration
 
             this.Given(x => x.GivenTheFollowingFileReRoute(fileReRoute))
                 .When(x => x.WhenICreateTheTemplatePattern())
-                .Then(x => x.ThenTheFollowingIsReturned("^/.*"))
+                .Then(x => x.ThenTheFollowingIsReturned("^/(?<url>.*)$"))
                 .And(x => ThenThePriorityIs(0))
                 .BDDfy();
         }
@@ -204,7 +204,7 @@ namespace Ocelot.UnitTests.Configuration
 
             this.Given(x => x.GivenTheFollowingFileReRoute(fileReRoute))
                 .When(x => x.WhenICreateTheTemplatePattern())
-                .Then(x => x.ThenTheFollowingIsReturned("^/[^/]+/products/variants/[^/]+(/|)$"))
+                .Then(x => x.ThenTheFollowingIsReturned("^/(?<productId>[^/]+)/products/variants/(?<variantId>[^/]+)(/|)$"))
                 .And(x => ThenThePriorityIs(1))
                 .BDDfy();
         }
@@ -219,7 +219,7 @@ namespace Ocelot.UnitTests.Configuration
 
             this.Given(x => x.GivenTheFollowingFileReRoute(fileReRoute))
                 .When(x => x.WhenICreateTheTemplatePattern())
-                .Then(x => x.ThenTheFollowingIsReturned("^(?i)/api/subscriptions/[^/]+/updates\\?unitId=.+$"))
+                .Then(x => x.ThenTheFollowingIsReturned("^(?i)/api/subscriptions/(?<subscriptionId>[^/]+)/updates\\?unitId=(?<unitId>[^&]+)"))
                 .And(x => ThenThePriorityIs(1))
                 .BDDfy();
         }
@@ -234,7 +234,7 @@ namespace Ocelot.UnitTests.Configuration
 
             this.Given(x => x.GivenTheFollowingFileReRoute(fileReRoute))
                 .When(x => x.WhenICreateTheTemplatePattern())
-                .Then(x => x.ThenTheFollowingIsReturned("^(?i)/api/subscriptions/[^/]+/updates\\?unitId=.+&productId=.+$"))
+                .Then(x => x.ThenTheFollowingIsReturned("^(?i)/api/subscriptions/(?<subscriptionId>[^/]+)/updates\\?unitId=(?<unitId>[^&]+)|productId=(?<productId>[^&]+)"))
                 .And(x => ThenThePriorityIs(1))
                 .BDDfy();
         }

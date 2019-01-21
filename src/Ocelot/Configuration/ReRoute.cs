@@ -15,8 +15,8 @@ namespace Ocelot.Configuration
             string aggregator)
         {
             UpstreamHost = upstreamHost;
-            DownstreamReRoute = downstreamReRoute?.ToImmutableList();
-            UpstreamHttpMethod = upstreamHttpMethod?.ToImmutableHashSet();
+            DownstreamReRoute = downstreamReRoute?.ToImmutableList() ?? ImmutableList<DownstreamReRoute>.Empty;
+            UpstreamHttpMethod = upstreamHttpMethod?.ToImmutableHashSet() ?? ImmutableHashSet<HttpMethod>.Empty;
             UpstreamTemplatePattern = upstreamTemplatePattern;
             Aggregator = aggregator;
         }
