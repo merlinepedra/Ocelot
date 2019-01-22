@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using Ocelot.Configuration.Builder;
 using Ocelot.DownstreamRouteFinder;
+using Ocelot.Middleware;
 using Ocelot.Placeholders;
 using Ocelot.Placeholders.Providers;
 using Ocelot.Responses;
+using Ocelot.Tests.Utility;
 using Ocelot.Values;
 using Shouldly;
 using TestStack.BDDfy;
@@ -13,17 +15,13 @@ namespace Ocelot.UnitTests.DownstreamUrlCreator.UrlTemplateReplacer
 {
     public class UpstreamUrlPathTemplateVariableReplacerTests
     {
+        private DownstreamContext _context = new DownstreamContext(new FakeHttpContext());
         private DownstreamRoute _downstreamRoute;
-        private Response<DownstreamPath> _result;
-        private readonly IPlaceholderProcessor _processor;
-
-        public UpstreamUrlPathTemplateVariableReplacerTests()
+        private Response<string> _result;
+        private readonly IPlaceholderProcessor _processor = new PlaceholderProcessor(new List<IPlaceholderProvider>
         {
-            _processor = new PlaceholderProcessor(new List<IPlaceholderProvider>
-            {
-                new DefaultPlaceholderProvider()
-            });
-        }
+            new DefaultPlaceholderProvider()
+        });
 
         [Fact]
         public void can_replace_no_template_variables()
@@ -113,7 +111,7 @@ namespace Ocelot.UnitTests.DownstreamUrlCreator.UrlTemplateReplacer
         {
             var templateVariables = new Dictionary<string, string>()
             {
-                {"{productId}", "1"}
+                {"productId", "1"}
             };
 
             this.Given(x => x.GivenThereIsAUrlMatch(new DownstreamRoute(templateVariables, 
@@ -177,9 +175,9 @@ namespace Ocelot.UnitTests.DownstreamUrlCreator.UrlTemplateReplacer
         {
             var templateVariables = new Dictionary<string, string>()
             {
-                {"{productId}", "1"},
-                {"{variantId}", "12"},
-                {"{categoryId}", "34"}
+                {"productId", "1"},
+                {"variantId", "12"},
+                {"categoryId", "34"}
             };
 
             this.Given(x => x.GivenThereIsAUrlMatch(new DownstreamRoute(templateVariables, 
@@ -198,16 +196,18 @@ namespace Ocelot.UnitTests.DownstreamUrlCreator.UrlTemplateReplacer
         private void GivenThereIsAUrlMatch(DownstreamRoute downstreamRoute)
         {
             _downstreamRoute = downstreamRoute;
+            _context.UpstreamUrlValues = downstreamRoute.UrlValues;
         }
 
         private void WhenIReplaceTheTemplateVariables()
         {
-            //_result = _processor.ProcessTemplate(context, _downstreamRoute.ReRoute.DownstreamReRoute[0].DownstreamPathTemplate.Value);
+            _result = _processor.ProcessTemplate(_context, _downstreamRoute.ReRoute.DownstreamReRoute[0].DownstreamPathTemplate.Value);
+
         }
 
         private void ThenTheDownstreamUrlPathIsReturned(string expected)
         {
-            _result.Data.Value.ShouldBe(expected);
+            _result.Data.ShouldBe(expected);
         }
     }
 }

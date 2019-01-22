@@ -26,7 +26,7 @@ namespace Ocelot.Placeholders
         {
             try
             {
-                var result = new StringBuilder(template, template.Length * 2);
+                var result = new StringBuilder(template ?? string.Empty, template?.Length * 2 ?? 0);
                 foreach (Match match in template.MatchPlaceholders())
                 {
                     var hasOp = match.Groups[2].Value.Length == 2;
