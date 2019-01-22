@@ -1,4 +1,6 @@
-﻿namespace Ocelot.UnitTests.DownstreamUrlCreator
+﻿using Microsoft.EntityFrameworkCore.Internal;
+
+namespace Ocelot.UnitTests.DownstreamUrlCreator
 {
     using System;
     using System.Collections.Generic;
@@ -51,6 +53,7 @@
                 .WithDownstreamPathTemplate("any old string")
                 .WithUpstreamHttpMethod(new List<string> {"Get"})
                 .WithDownstreamScheme("https")
+                .WithDownstreamPathTemplate("/api/products/1")
                 .Build();
 
             var config = new ServiceProviderConfigurationBuilder()
@@ -176,6 +179,7 @@
                 .WithDownstreamPathTemplate("any old string")
                 .WithUpstreamHttpMethod(new List<string> { "Get" })
                 .WithDownstreamScheme("https")
+                .WithDownstreamPathTemplate("/api/products/1")
                 .Build();
 
             var config = new ServiceProviderConfigurationBuilder()
@@ -206,6 +210,7 @@
                 .WithDownstreamScheme("http")
                 .WithServiceName("Ocelot/OcelotApp")
                 .WithUseServiceDiscovery(true)
+                .WithDownstreamPathTemplate("/api/products/1")
                 .Build();
 
             var downstreamRoute = new DownstreamRoute(
@@ -236,6 +241,7 @@
                 .WithDownstreamScheme("http")
                 .WithServiceName("Ocelot/OcelotApp")
                 .WithUseServiceDiscovery(true)
+                .WithDownstreamPathTemplate("/api/products/1")
                 .Build();
 
             var downstreamRoute = new DownstreamRoute(
@@ -266,6 +272,7 @@
                 .WithDownstreamScheme("http")
                 .WithServiceName("Ocelot/OcelotApp")
                 .WithUseServiceDiscovery(true)
+                .WithDownstreamPathTemplate("/api/products/1")
                 .Build();
 
             var downstreamRoute = new DownstreamRoute(
@@ -299,6 +306,8 @@
                             .WithDownstreamScheme("http")
                             .WithUpstreamPathTemplate(new UpstreamPathTemplateBuilder().WithOriginalValue("/products").Build())
                             .WithUseServiceDiscovery(true)
+                            .WithDownstreamPathTemplate("/Api/products")
+                            .WithServiceName("Service_1.0")
                             .Build()
                     ).Build());
 
@@ -381,11 +390,7 @@
         {
             var setup = _downstreamUrlTemplateVariableReplacer
                 .SetupSequence(x => x.ProcessTemplate(It.IsAny<DownstreamContext>(), It.IsAny<string>()));
-            foreach (var path in paths)
-            {
-                var response = new OkResponse<string>(path);
-                setup.Returns(response);
-            }
+            setup.Returns(new OkResponse<string>(paths.Join()));
         }
         private void GivenTheUrlReplacerWillReturn(string path)
         {
